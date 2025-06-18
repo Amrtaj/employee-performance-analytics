@@ -1,0 +1,1189 @@
+import React, { useState, useRef, useEffect } from 'react';
+// Removed direct imports for xlsx, html2canvas, jspdf as they will be loaded via CDN
+
+// Recharts imports remain as they are typically bundled with React
+import {
+    BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
+} from 'recharts';
+
+// Main App Component
+const App = () => {
+    const [excelData, setExcelData] = useState(null); // Stores parsed Excel data
+    const [currentReport, setCurrentReport] = useState(''); // Tracks which report is currently active
+    const [loading, setLoading] = useState(false); // Loading state for operations
+    const [error, setError] = useState(''); // Error messages (for critical errors)
+    const [warning, setWarning] = useState(''); // Warning messages (for non-critical issues like missing columns)
+    const reportRef = useRef(null); // Ref for the report content to export
+
+    // Define color palette for charts
+    const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#a4de6c', '#d0ed57', '#83a6ed', '#8dd1e1'];
+
+    // Expected Excel column names for validation
+    const EXPECTED_COLUMNS = [
+        'Employee ID', 'Name', 'Grade', 'Score', 'Division', 'Gender', 'Generation', 'Job Level', 'Join Date', 'Performance Manager', 'Year'
+    ];
+
+    // useEffect to load external scripts (CDNs) once when the component mounts
+    useEffect(() => {
+        const loadScript = (src, id) => {
+            if (!document.getElementById(id)) {
+                const script = document.createElement('script');
+                script.src = src;
+                script.id = id;
+                script.async = true;
+                document.body.appendChild(script);
+            }
+        };
+
+        // Load XLSX, html2canvas, and jsPDF from CDNs
+        loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js', 'xlsx-script');
+        loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', 'html2canvas-script');
+        loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', 'jspdf-script');
+    }, []); // Empty dependency array ensures this runs only once
+
+    // Handle file upload
+    const handleFileUpload = (event) => {
+        const file = event.target.files[0];
+        if (!file) {
+            setError('Please select an Excel file.');
+            setWarning(''); // Clear any previous warnings
+            return;
+        }
+        setLoading(true);
+        setError(''); // Clear previous errors
+        setWarning(''); // Clear previous warnings
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                // Ensure XLSX is available globally
+                if (typeof window.XLSX === 'undefined') {
+                    setError('XLSX library not loaded. Please wait a moment and try again, or refresh the page.');
+                    setLoading(false);
+                    return;
+                }
+
+                const data = new Uint8Array(e.target.result);
+                const workbook = window.XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0]; // Get the first sheet
+                const worksheet = workbook.Sheets[sheetName];
+                const jsonData = window.XLSX.utils.sheet_to_json(worksheet);
+
+                if (jsonData.length === 0) {
+                    setError('The Excel file is empty.');
+                    setExcelData(null);
+                    setLoading(false);
+                    return;
+                }
+
+                // Validate column structure - now just a warning, not blocking
+                const firstRowColumns = Object.keys(jsonData[0]);
+                const missingColumns = EXPECTED_COLUMNS.filter(col => !firstRowColumns.includes(col));
+
+                if (missingColumns.length > 0) {
+                    setWarning(`Some expected columns are missing: ${missingColumns.join(', ')}. Reports relying on these columns may show incomplete or inaccurate data.`);
+                }
+
+                // Pre-process data: ensure Score is number, Join Date is Date object
+                const processedData = jsonData.map(row => {
+                    const newRow = { ...row };
+                    // Convert score to a number, handle potential undefined/null
+                    newRow.Score = parseFloat(row.Score) || 0;
+                    // Convert Excel date number to JS Date object
+                    if (typeof row['Join Date'] === 'number') {
+                        newRow['Join Date'] = new Date(Math.round((row['Join Date'] - 25569) * 86400 * 1000));
+                    } else if (typeof row['Join Date'] === 'string') {
+                        newRow['Join Date'] = new Date(row['Join Date']);
+                    } else {
+                        newRow['Join Date'] = null; // Handle cases where date is missing or invalid
+                    }
+                    // Ensure 'Year' column is present and numeric, default to current year if not provided
+                    newRow.Year = parseInt(row.Year, 10) || new Date().getFullYear();
+                    return newRow;
+                });
+                setExcelData(processedData);
+                setCurrentReport(''); // Clear previous report
+            } catch (err) {
+                setError('Error parsing Excel file. Please ensure it is a valid .xlsx file and not corrupted.');
+                console.error("Error parsing Excel:", err);
+                setExcelData(null);
+                setWarning(''); // Clear warnings on critical error
+            } finally {
+                setLoading(false);
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    };
+
+    // Function to generate the Executive Summary report
+    const generateExecutiveSummary = () => {
+        if (!excelData) return;
+
+        const totalEmployees = excelData.length;
+        const avgScore = (excelData.reduce((sum, row) => sum + row.Score, 0) / totalEmployees).toFixed(2);
+        const uniqueDivisions = [...new Set(excelData.map(row => row.Division))].filter(Boolean); // Filter out undefined/null
+
+        // Group data by Year and Division for trends
+        const performanceByYearDivision = excelData.reduce((acc, row) => {
+            const year = row.Year;
+            if (!acc[year]) acc[year] = {};
+            if (!acc[year][row.Division]) acc[year][row.Division] = { sum: 0, count: 0 };
+            acc[year][row.Division].sum += row.Score;
+            acc[year][row.Division].count++;
+            return acc;
+        }, {});
+
+        const trendData = Object.keys(performanceByYearDivision).sort().map(year => {
+            const yearData = { name: year };
+            uniqueDivisions.forEach(division => { // Ensure all divisions are present in each year's data point for consistency
+                if (performanceByYearDivision[year][division]) {
+                    yearData[division] = (performanceByYearDivision[year][division].sum / performanceByYearDivision[year][division].count).toFixed(2);
+                } else {
+                    yearData[division] = null; // No data for this division in this year
+                }
+            });
+            return yearData;
+        });
+
+        // Identify top-performing divisions (average score across all available years or current year)
+        const avgScoreByDivision = excelData.reduce((acc, row) => {
+            if (!acc[row.Division]) acc[row.Division] = { sum: 0, count: 0 };
+            acc[row.Division].sum += row.Score;
+            acc[row.Division].count++;
+            return acc;
+        }, {});
+        const topDivisions = Object.keys(avgScoreByDivision)
+            .map(div => ({ division: div, avgScore: (avgScoreByDivision[div].sum / avgScoreByDivision[div].count).toFixed(2) }))
+            .sort((a, b) => b.avgScore - a.avgScore)
+            .slice(0, 3); // Top 3 divisions
+
+        const reportContent = (
+            <div className="p-6 bg-white rounded-lg shadow-md mb-6">
+                <h3 className="text-2xl font-bold mb-4 text-gray-800">Executive Summary</h3>
+
+                <h4 className="text-xl font-semibold mb-2 text-gray-700">Methodology & Definitions:</h4>
+                <p className="mb-4 text-gray-600">
+                    This report provides a high-level overview of employee performance data, utilizing the uploaded Excel file.
+                    Performance metrics are based on the 'Score' column (on a scale typically 1-5).
+                    The analysis scope covers all employees and available performance years in the dataset.
+                </p>
+
+                <h4 className="text-xl font-semibold mb-2 text-gray-700">Key Highlights (Overall Trends):</h4>
+                <ul className="list-disc list-inside mb-4 text-gray-600">
+                    <li>Total Employees Analyzed: <span className="font-semibold text-blue-600">{totalEmployees}</span></li>
+                    <li>Overall Average Performance Score: <span className="font-semibold text-blue-600">{avgScore}</span></li>
+                    <li>Top Performing Divisions (based on average score): {topDivisions.map(d => `${d.division} (${d.avgScore})`).join(', ')}.</li>
+                    <li>Emerging Talent Pools: Often indicated by higher scores in specific divisions or job levels, which are further detailed in the 'Career & Talent Development' report.</li>
+                </ul>
+                <p className="mb-4 text-gray-600">
+                    <span className="font-bold">Year-over-year trends</span> are identified by analyzing the 'Score' column across different 'Year' entries.
+                    Look for significant dips or rebounds in performance across divisions over the years, which can indicate success or areas for improvement.
+                </p>
+
+                <h4 className="text-xl font-semibold mb-2 text-gray-700">Performance Trends at a Glance:</h4>
+                <p className="mb-4 text-gray-600">
+                    The chart below visualizes the average performance score changes across different divisions and available years.
+                    Each line represents a division, showing its performance trajectory.
+                </p>
+                <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={trendData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis domain={[0, 5]} label={{ value: 'Average Score', angle: -90, position: 'insideLeft' }} />
+                        <Tooltip />
+                        <Legend />
+                        {uniqueDivisions.map((division, index) => (
+                            <Line
+                                key={division}
+                                type="monotone"
+                                dataKey={division}
+                                stroke={COLORS[index % COLORS.length]}
+                                strokeWidth={2}
+                                activeDot={{ r: 8 }}
+                            />
+                        ))}
+                    </LineChart>
+                </ResponsiveContainer>
+
+                <h4 className="text-xl font-semibold mb-2 mt-4 text-gray-700">Strategic Recommendations:</h4>
+                <ul className="list-disc list-inside text-gray-600">
+                    <li>Utilize insights from top-performing divisions to replicate success across the organization.</li>
+                    <li>Investigate anomalies in year-over-year performance (e.g., significant dips) to identify underlying causes and address them proactively.</li>
+                    <li>Develop targeted development programs for emerging talent pools to nurture their growth.</li>
+                </ul>
+            </div>
+        );
+        setCurrentReport(reportContent);
+    };
+
+    // Function to generate the Performance Metrics Overview report
+    const generatePerformanceMetricsOverview = () => {
+        if (!excelData) return;
+
+        // Performance Distribution by Grade
+        const scoreDistributionByGrade = excelData.reduce((acc, row) => {
+            if (!acc[row.Grade]) acc[row.Grade] = { sum: 0, count: 0 };
+            acc[row.Grade].sum += row.Score;
+            acc[row.Grade].count++;
+            return acc;
+        }, {});
+        const distributionData = Object.keys(scoreDistributionByGrade).map(grade => ({
+            name: `Grade ${grade}`,
+            averageScore: (scoreDistributionByGrade[grade].sum / scoreDistributionByGrade[grade].count).toFixed(2),
+            count: scoreDistributionByGrade[grade].count
+        })).sort((a, b) => a.name.localeCompare(b.name));
+
+        // Trend Snapshot: Top Performers, Consistency Rates, Improvement Zones
+        const sortedByScore = [...excelData].sort((a, b) => b.Score - a.Score);
+        const topPerformers = sortedByScore.slice(0, Math.min(10, sortedByScore.length)); // Top 10
+        const improvementZones = sortedByScore.slice(Math.max(0, sortedByScore.length - 10)); // Bottom 10
+
+        // Consistency rate (simplified for single score per employee: refers to how many individuals are consistently high performers)
+        // If there were multiple scores per employee over time, standard deviation could be used.
+        const consistentHighPerformers = excelData.filter(row => row.Score >= 4.0).length; // Assuming 4.0+ is high performer
+        const consistencyRate = ((consistentHighPerformers / excelData.length) * 100).toFixed(2);
+
+
+        const reportContent = (
+            <div className="p-6 bg-white rounded-lg shadow-md mb-6">
+                <h3 className="text-2xl font-bold mb-4 text-gray-800">Performance Metrics Overview</h3>
+
+                <h4 className="text-xl font-semibold mb-2 text-gray-700">Performance Distribution by Grade:</h4>
+                <p className="mb-4 text-gray-600">
+                    This chart illustrates the average performance score and count of employees across different grades. It helps understand how performance is distributed within the grading structure and identifies where performance clusters.
+                </p>
+                <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={distributionData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis yAxisId="left" orientation="left" stroke="#8884d8" domain={[0, 5]} label={{ value: 'Average Score', angle: -90, position: 'insideLeft' }} />
+                        <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" label={{ value: 'Number of Employees', angle: 90, position: 'insideRight' }} />
+                        <Tooltip />
+                        <Legend />
+                        <Bar yAxisId="left" dataKey="averageScore" name="Average Score" fill="#8884d8" radius={[10, 10, 0, 0]} />
+                        <Bar yAxisId="right" dataKey="count" name="Number of Employees" fill="#82ca9d" radius={[10, 10, 0, 0]} />
+                    </BarChart>
+                </ResponsiveContainer>
+
+                <h4 className="text-xl font-semibold mb-2 mt-4 text-gray-700">Trend Snapshot:</h4>
+                <p className="mb-2 text-gray-600">
+                    <span className="font-bold">Top Performers:</span> These employees demonstrate consistently high performance.
+                </p>
+                <div className="overflow-x-auto mb-4">
+                    <table className="min-w-full bg-white border border-gray-200 rounded-md">
+                        <thead>
+                            <tr>
+                                <th className="py-2 px-4 border-b">Employee ID</th>
+                                <th className="py-2 px-4 border-b">Name</th>
+                                <th className="py-2 px-4 border-b">Score</th>
+                                <th className="py-2 px-4 border-b">Division</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {topPerformers.map((emp, index) => (
+                                <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : ''}>
+                                    <td className="py-2 px-4 border-b">{emp['Employee ID']}</td>
+                                    <td className="py-2 px-4 border-b">{emp.Name}</td>
+                                    <td className="py-2 px-4 border-b font-semibold">{emp.Score}</td>
+                                    <td className="py-2 px-4 border-b">{emp.Division}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                <p className="mb-2 text-gray-600">
+                    <span className="font-bold">Consistency Rate:</span> {consistencyRate}% of employees have a score of 4.0 or higher.
+                    This metric indicates the proportion of high-performing individuals within the dataset.
+                </p>
+                <p className="mb-2 text-gray-600">
+                    <span className="font-bold">Improvement Zones:</span> These employees have lower performance scores and may require additional support or development interventions.
+                </p>
+                <div className="overflow-x-auto mb-4">
+                    <table className="min-w-full bg-white border border-gray-200 rounded-md">
+                        <thead>
+                            <tr>
+                                <th className="py-2 px-4 border-b">Employee ID</th>
+                                <th className="py-2 px-4 border-b">Name</th>
+                                <th className="py-2 px-4 border-b">Score</th>
+                                <th className="py-2 px-4 border-b">Division</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {improvementZones.map((emp, index) => (
+                                <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : ''}>
+                                    <td className="py-2 px-4 border-b">{emp['Employee ID']}</td>
+                                    <td className="py-2 px-4 border-b">{emp.Name}</td>
+                                    <td className="py-2 px-4 border-b font-semibold text-red-600">{emp.Score}</td>
+                                    <td className="py-2 px-4 border-b">{emp.Division}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 className="text-xl font-semibold mb-2 mt-4 text-gray-700">Strategic Recommendations:</h4>
+                <ul className="list-disc list-inside text-gray-600">
+                    <li>Recognize and reward top performers to maintain high morale, foster a culture of excellence, and enhance retention.</li>
+                    <li>Implement targeted training and mentorship programs for employees in improvement zones to boost their skills and performance.</li>
+                    <li>Analyze the factors contributing to performance consistency to identify and replicate best practices across the organization.</li>
+                </ul>
+            </div>
+        );
+        setCurrentReport(reportContent);
+    };
+
+    // Function to generate the Organizational Insights report
+    const generateOrganizationalInsights = () => {
+        if (!excelData) return;
+
+        // Average Score by Division
+        const avgScoreByDivision = excelData.reduce((acc, row) => {
+            if (!acc[row.Division]) acc[row.Division] = { sum: 0, count: 0 };
+            acc[row.Division].sum += row.Score;
+            acc[row.Division].count++;
+            return acc;
+        }, {});
+        const avgDivData = Object.keys(avgScoreByDivision).map(div => ({
+            name: div,
+            averageScore: (avgScoreByDivision[div].sum / avgScoreByDivision[div].count).toFixed(2)
+        })).sort((a, b) => a.name.localeCompare(b.name));
+
+        // Average Score by Job Level
+        const avgScoreByJobLevel = excelData.reduce((acc, row) => {
+            if (!acc[row['Job Level']]) acc[row['Job Level']] = { sum: 0, count: 0 };
+            acc[row['Job Level']].sum += row.Score;
+            acc[row['Job Level']].count++;
+            return acc;
+        }, {});
+        const avgJobLevelData = Object.keys(avgScoreByJobLevel).map(level => ({
+            name: level,
+            averageScore: (avgScoreByJobLevel[level].sum / avgScoreByJobLevel[level].count).toFixed(2) // Corrected access here
+        })).sort((a, b) => a.name.localeCompare(b.name));
+
+        // Grade Distribution by Division
+        const gradeDistributionByDivision = excelData.reduce((acc, row) => {
+            if (!acc[row.Division]) acc[row.Division] = {};
+            acc[row.Division][row.Grade] = (acc[row.Division][row.Grade] || 0) + 1;
+            return acc;
+        }, {});
+        // Collect all unique grades and divisions to ensure full data representation
+        const grades = [...new Set(excelData.map(d => d.Grade))].filter(Boolean).sort();
+        const divisions = [...new Set(excelData.map(d => d.Division))].filter(Boolean).sort();
+
+        const gradeDistDivChartData = divisions.map(division => {
+            const entry = { name: division };
+            grades.forEach(grade => {
+                entry[grade] = (gradeDistributionByDivision[division] && gradeDistributionByDivision[division][grade]) || 0;
+            });
+            return entry;
+        });
+
+        // Consistency Rate by Unit (Division) - simplified as average score for now
+        // For true consistency, we'd need multiple scores per employee/division over time
+        const consistencyRateByDivision = Object.keys(avgScoreByDivision).map(div => ({
+            division: div,
+            consistency: (avgScoreByDivision[div].sum / avgScoreByDivision[div].count).toFixed(2) // Using average as a proxy for consistency in this single-score-per-employee context
+        })).sort((a, b) => parseFloat(b.consistency) - parseFloat(a.consistency)); // Sort numerically
+
+        // Top Performing Divisions (e.g., score above 3.5 threshold over all available years or current year)
+        const topPerformingDivs = avgDivData.filter(d => parseFloat(d.averageScore) > 3.5)
+            .sort((a, b) => b.averageScore - a.averageScore);
+
+        const reportContent = (
+            <div className="p-6 bg-white rounded-lg shadow-md mb-6">
+                <h3 className="text-2xl font-bold mb-4 text-gray-800">Organizational Insights</h3>
+
+                <h4 className="text-xl font-semibold mb-2 text-gray-700">Average Score by Division:</h4>
+                <p className="mb-4 text-gray-600">
+                    This chart shows the average performance score across different organizational divisions, highlighting areas of high and low performance. It helps pinpoint departments that are excelling or may need support.
+                </p>
+                <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={avgDivData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis domain={[0, 5]} />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="averageScore" name="Average Score" fill="#8884d8" radius={[10, 10, 0, 0]} />
+                    </BarChart>
+                </ResponsiveContainer>
+
+                <h4 className="text-xl font-semibold mb-2 mt-4 text-gray-700">Average Score by Job Level:</h4>
+                <p className="mb-4 text-gray-600">
+                    Understanding performance distribution across job levels helps in talent assessment, career pathing, and identifying where performance gaps might exist within the hierarchy.
+                </p>
+                <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={avgJobLevelData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis domain={[0, 5]} />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="averageScore" name="Average Score" fill="#82ca9d" radius={[10, 10, 0, 0]} />
+                    </BarChart>
+                </ResponsiveContainer>
+
+                <h4 className="text-xl font-semibold mb-2 mt-4 text-gray-700">Grade Distribution by Division:</h4>
+                <p className="mb-4 text-gray-600">
+                    This stacked bar chart shows the count of employees within each grade, segmented by division, providing insights into structural performance and grading consistency across departments.
+                </p>
+                <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={gradeDistDivChartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        {grades.map((grade, index) => (
+                            <Bar key={grade} dataKey={grade} stackId="a" fill={COLORS[index % COLORS.length]} />
+                        ))}
+                    </BarChart>
+                </ResponsiveContainer>
+
+                <h4 className="text-xl font-semibold mb-2 mt-4 text-gray-700">Consistency Rate by Unit (Division):</h4>
+                <p className="mb-4 text-gray-600">
+                    The table below shows the average performance score per division. While a simplified consistency metric here, a higher average score suggests more consistent overall performance within that unit.
+                </p>
+                <div className="overflow-x-auto mb-4">
+                    <table className="min-w-full bg-white border border-gray-200 rounded-md">
+                        <thead>
+                            <tr>
+                                <th className="py-2 px-4 border-b text-left">Division</th>
+                                <th className="py-2 px-4 border-b text-left">Average Score (Consistency Proxy)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {consistencyRateByDivision.map((item, index) => (
+                                <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : ''}>
+                                    <td className="py-2 px-4 border-b">{item.division}</td>
+                                    <td className="py-2 px-4 border-b">{item.consistency}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 className="text-xl font-semibold mb-2 mt-4 text-gray-700">Top Performing Divisions (Avg Score &gt; 3.5):</h4>
+                <p className="mb-4 text-gray-600">
+                    Divisions maintaining average performance scores above a certain threshold (e.g., 3.5 out of 5) indicate strong overall team performance and effectiveness.
+                </p>
+                <ul className="list-disc list-inside mb-4 text-gray-600">
+                    {topPerformingDivs.length > 0 ? topPerformingDivs.map((div, index) => (
+                        <li key={index}>{div.name}: Average Score <span className="font-semibold text-green-600">{div.averageScore}</span></li>
+                    )) : <li>No divisions met the 'top performing' threshold of &gt;3.5 average score in this dataset. Adjust threshold as needed.</li>}
+                </ul>
+
+                <h4 className="text-xl font-semibold mb-2 mt-4 text-gray-700">Strategic Recommendations:</h4>
+                <ul className="list-disc list-inside text-gray-600">
+                    <li>Identify best practices from top-performing divisions and share them broadly across the organization to elevate overall performance.</li>
+                    <li>Analyze divisions with lower average scores to pinpoint challenges and provide targeted support or resource allocation.</li>
+                    <li>Review grade distribution within divisions and job levels to ensure proper talent alignment, equitable growth opportunities, and effective succession planning.</li>
+                </ul>
+            </div>
+        );
+        setCurrentReport(reportContent);
+    };
+
+    // Function to generate the Career & Talent Development report
+    const generateCareerTalentDevelopment = () => {
+        if (!excelData) return;
+
+        // New Joiner Performance (less than 1 year tenure)
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+        const newJoiners = excelData.filter(row => row['Join Date'] && new Date(row['Join Date']) > oneYearAgo);
+        const avgScoreNewJoiners = newJoiners.length > 0 ? (newJoiners.reduce((sum, row) => sum + row.Score, 0) / newJoiners.length).toFixed(2) : 'N/A';
+
+        // Leadership vs. Individual Contributor (IC) Analysis
+        // Assumption: Job Level contains keywords like 'Manager', 'Director', 'Lead' for leadership roles.
+        const leadershipKeywords = ['Manager', 'Director', 'Lead', 'Head', 'VP', 'Chief'];
+        const leadershipData = excelData.filter(row =>
+            row['Job Level'] && leadershipKeywords.some(keyword => row['Job Level'].toLowerCase().includes(keyword.toLowerCase()))
+        );
+        const icData = excelData.filter(row =>
+            row['Job Level'] && !leadershipKeywords.some(keyword => row['Job Level'].toLowerCase().includes(keyword.toLowerCase()))
+        );
+
+        const avgScoreLeadership = leadershipData.length > 0 ? (leadershipData.reduce((sum, row) => sum + row.Score, 0) / leadershipData.length).toFixed(2) : 'N/A';
+        const avgScoreIC = icData.length > 0 ? (icData.reduce((sum, row) => sum + row.Score, 0) / icData.length).toFixed(2) : 'N/A';
+
+        const leadershipICChartData = [
+            { name: 'Leadership', averageScore: parseFloat(avgScoreLeadership) || 0 },
+            { name: 'Individual Contributor', averageScore: parseFloat(avgScoreIC) || 0 }
+        ];
+
+        // Performance by Career Level (Job Level)
+        const performanceByCareerLevel = excelData.reduce((acc, row) => {
+            if (!acc[row['Job Level']]) acc[row['Job Level']] = { sum: 0, count: 0 };
+            acc[row['Job Level']].sum += row.Score;
+            acc[row['Job Level']].count++;
+            return acc;
+        }, {});
+        const careerLevelData = Object.keys(performanceByCareerLevel).map(level => ({
+            name: level,
+            averageScore: (performanceByCareerLevel[level].sum / performanceByCareerLevel[level].count).toFixed(2)
+        })).sort((a, b) => a.name.localeCompare(b.name));
+
+        // Core vs. Support Functions: (Assumption: 'Division' can be loosely categorized)
+        // This is a placeholder and would require a more robust mapping for real analysis.
+        const coreFunctionsKeywords = ['Engineering', 'Product', 'Sales', 'Operations', 'Development', 'Marketing'];
+        const supportFunctionsKeywords = ['HR', 'Finance', 'Legal', 'Admin', 'IT', 'Customer Service'];
+
+        const coreData = excelData.filter(row =>
+            row.Division && coreFunctionsKeywords.some(func => row.Division.toLowerCase().includes(func.toLowerCase()))
+        );
+        const supportData = excelData.filter(row =>
+            row.Division && supportFunctionsKeywords.some(func => row.Division.toLowerCase().includes(func.toLowerCase()))
+        );
+
+        const avgScoreCore = coreData.length > 0 ? (coreData.reduce((sum, row) => sum + row.Score, 0) / coreData.length).toFixed(2) : 'N/A';
+        const avgScoreSupport = supportData.length > 0 ? (supportData.reduce((sum, row) => sum + row.Score, 0) / supportData.length).toFixed(2) : 'N/A';
+
+        const coreSupportChartData = [
+            { name: 'Core Functions', averageScore: parseFloat(avgScoreCore) || 0 },
+            { name: 'Support Functions', averageScore: parseFloat(avgScoreSupport) || 0 }
+        ];
+
+        const reportContent = (
+            <div className="p-6 bg-white rounded-lg shadow-md mb-6">
+                <h3 className="text-2xl font-bold mb-4 text-gray-800">Career & Talent Development</h3>
+
+                <h4 className="text-xl font-semibold mb-2 text-gray-700">Promotion ↔ Performance Correlation:</h4>
+                <p className="mb-4 text-gray-600">
+                    While direct promotion data (e.g., date of last promotion) is not explicitly available in the current dataset, we can infer potential correlation by examining performance across job levels. Generally, higher performance at lower job levels often indicates readiness for advancement and potential for promotion. Further analysis with historical promotion data would provide clearer insights.
+                </p>
+
+                <h4 className="text-xl font-semibold mb-2 mt-4 text-gray-700">New Joiner Performance (Less than 1 Year Tenure):</h4>
+                <p className="mb-2 text-gray-600">
+                    Average performance score for employees who joined within the last year: <span className="font-semibold text-blue-600">{avgScoreNewJoiners}</span>.
+                </p>
+                <p className="mb-4 text-gray-600">
+                    Understanding the performance of new hires is crucial for assessing the effectiveness of onboarding programs, training initiatives, and early talent development support.
+                </p>
+
+                <h4 className="text-xl font-semibold mb-2 mt-4 text-gray-700">Leadership vs. Individual Contributor (IC) Analysis:</h4>
+                <p className="mb-4 text-gray-600">
+                    Comparing average performance scores between identified leadership roles and individual contributors. This helps assess the overall performance trends and effectiveness of leadership development versus individual growth paths.
+                </p>
+                <ResponsiveContainer width="100%" height={250}>
+                    <BarChart data={leadershipICChartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis domain={[0, 5]} />
+                        <Tooltip />
+                        <Bar dataKey="averageScore" name="Average Score" fill="#ffc658" radius={[10, 10, 0, 0]} />
+                    </BarChart>
+                </ResponsiveContainer>
+                <ul className="list-disc list-inside mt-2 text-gray-600">
+                    <li>Average Leadership Score: <span className="font-semibold text-blue-600">{avgScoreLeadership}</span></li>
+                    <li>Average IC Score: <span className="font-semibold text-blue-600">{avgScoreIC}</span></li>
+                </ul>
+
+                <h4 className="text-xl font-semibold mb-2 mt-4 text-gray-700">Performance by Career Level (Job Level):</h4>
+                <p className="mb-4 text-gray-600">
+                    Average performance scores across different job levels, from entry-level to managerial positions. This can highlight performance expectations and challenges at various stages of an employee's career.
+                </p>
+                <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={careerLevelData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis domain={[0, 5]} />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="averageScore" name="Average Score" fill="#ff8042" radius={[10, 10, 0, 0]} />
+                    </BarChart>
+                </ResponsiveContainer>
+
+                <h4 className="text-xl font-semibold mb-2 mt-4 text-gray-700">Core vs. Support Functions:</h4>
+                <p className="mb-4 text-gray-600">
+                    Comparing the impact and consistency of performance between core business functions (e.g., product, sales) and support functions (e.g., HR, finance). This helps in resource allocation and understanding functional contributions.
+                </p>
+                <ResponsiveContainer width="100%" height={250}>
+                    <BarChart data={coreSupportChartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis domain={[0, 5]} />
+                        <Tooltip />
+                        <Bar dataKey="averageScore" name="Average Score" fill="#a4de6c" radius={[10, 10, 0, 0]} />
+                    </BarChart>
+                </ResponsiveContainer>
+                <ul className="list-disc list-inside mt-2 text-gray-600">
+                    <li>Average Core Functions Score: <span className="font-semibold text-blue-600">{avgScoreCore}</span></li>
+                    <li>Average Support Functions Score: <span className="font-semibold text-blue-600">{avgScoreSupport}</span></li>
+                </ul>
+
+                <h4 className="text-xl font-semibold mb-2 mt-4 text-gray-700">Strategic Recommendations:</h4>
+                <ul className="list-disc list-inside text-gray-600">
+                    <li>Develop specialized onboarding programs to accelerate new joiner performance and integration into the company culture.</li>
+                    <li>Design distinct career development paths for leadership and IC roles, tailored to their unique performance drivers and skill requirements.</li>
+                    <li>Evaluate performance expectations and support mechanisms across different career levels and functional groups to ensure equity and effectiveness in talent development.</li>
+                </ul>
+            </div>
+        );
+        setCurrentReport(reportContent);
+    };
+
+    // Function to generate the Diversity & Inclusion Analytics report
+    const generateDiversityInclusionAnalytics = () => {
+        if (!excelData) return;
+
+        // Average Score by Gender
+        const avgScoreByGender = excelData.reduce((acc, row) => {
+            if (!acc[row.Gender]) acc[row.Gender] = { sum: 0, count: 0 };
+            acc[row.Gender].sum += row.Score;
+            acc[row.Gender].count++;
+            return acc;
+        }, {});
+        const genderData = Object.keys(avgScoreByGender).map(gen => ({
+            name: gen,
+            averageScore: (avgScoreByGender[gen].sum / avgScoreByGender[gen].count).toFixed(2)
+        })).sort((a, b) => a.name.localeCompare(b.name));
+
+        // Average Score by Generation
+        const avgScoreByGeneration = excelData.reduce((acc, row) => {
+            if (!acc[row.Generation]) acc[row.Generation] = { sum: 0, count: 0 };
+            acc[row.Generation].sum += row.Score;
+            acc[row.Generation].count++;
+            return acc;
+        }, {});
+        const generationData = Object.keys(avgScoreByGeneration).map(gen => ({
+            name: gen,
+            averageScore: (avgScoreByGeneration[gen].sum / avgScoreByGeneration[gen].count).toFixed(2)
+        })).sort((a, b) => a.name.localeCompare(b.name));
+
+        // Grade Distribution by Gender
+        const gradeDistributionByGender = excelData.reduce((acc, row) => {
+            if (!acc[row.Gender]) acc[row.Gender] = {};
+            acc[row.Gender][row.Grade] = (acc[row.Gender][row.Grade] || 0) + 1;
+            return acc;
+        }, {});
+        const genders = [...new Set(excelData.map(d => d.Gender))].filter(Boolean).sort();
+        const grades = [...new Set(excelData.map(d => d.Grade))].filter(Boolean).sort();
+        const gradeDistGenderChartData = genders.map(gender => {
+            const entry = { name: gender };
+            grades.forEach(grade => {
+                entry[grade] = (gradeDistributionByGender[gender] && gradeDistributionByGender[gender][grade]) || 0;
+            });
+            return entry;
+        });
+
+        // Consistency Rate Comparison (by Gender & Generation) - Using average as proxy
+        const consistencyGenderData = Object.keys(avgScoreByGender).map(gen => ({
+            group: gen,
+            consistency: (avgScoreByGender[gen].sum / avgScoreByGender[gen].count).toFixed(2)
+        }));
+        const consistencyGenerationData = Object.keys(avgScoreByGeneration).map(gen => ({
+            group: gen,
+            consistency: (avgScoreByGeneration[gen].sum / avgScoreByGeneration[gen].count).toFixed(2)
+        }));
+
+        // Top Performers by Group: Gender x Generation segmentation
+        const topPerformersByGroup = excelData.filter(row => row.Score >= 4.0).reduce((acc, row) => {
+            const groupKey = `${row.Gender || 'Unknown'} - ${row.Generation || 'Unknown'}`;
+            acc[groupKey] = (acc[groupKey] || 0) + 1;
+            return acc;
+        }, {});
+        const topGroupChartData = Object.keys(topPerformersByGroup).map(key => ({
+            name: key,
+            count: topPerformersByGroup[key]
+        })).sort((a, b) => b.count - a.count);
+
+
+        const reportContent = (
+            <div className="p-6 bg-white rounded-lg shadow-md mb-6">
+                <h3 className="text-2xl font-bold mb-4 text-gray-800">Diversity & Inclusion Analytics</h3>
+
+                <h4 className="text-xl font-semibold mb-2 text-gray-700">Average Score by Gender and Generation:</h4>
+                <p className="mb-4 text-gray-600">
+                    These charts illustrate how average performance scores vary across different gender and generational groups, helping to identify potential disparities or areas of excellence within specific demographics.
+                </p>
+                <div className="flex flex-col md:flex-row gap-4 mb-4">
+                    <div className="w-full md:w-1/2">
+                        <ResponsiveContainer width="100%" height={250}>
+                            <BarChart data={genderData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="name" />
+                                <YAxis domain={[0, 5]} />
+                                <Tooltip />
+                                <Legend />
+                                <Bar dataKey="averageScore" name="Avg Score by Gender" fill="#8884d8" radius={[10, 10, 0, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                    <div className="w-full md:w-1/2">
+                        <ResponsiveContainer width="100%" height={250}>
+                            <BarChart data={generationData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="name" />
+                                <YAxis domain={[0, 5]} />
+                                <Tooltip />
+                                <Legend />
+                                <Bar dataKey="averageScore" name="Avg Score by Generation" fill="#82ca9d" radius={[10, 10, 0, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                <h4 className="text-xl font-semibold mb-2 mt-4 text-gray-700">Grade Distribution by Gender:</h4>
+                <p className="mb-4 text-gray-600">
+                    This stacked bar chart shows the distribution of employees across different grades within gender groups, providing insights into equitable career progression and representation.
+                </p>
+                <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={gradeDistGenderChartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        {genders.map((gender, index) => (
+                            <Bar key={gender} dataKey={gender} stackId="a" fill={COLORS[index % COLORS.length]} />
+                        ))}
+                    </BarChart>
+                </ResponsiveContainer>
+
+                <h4 className="text-xl font-semibold mb-2 mt-4 text-gray-700">Consistency Rate Comparison:</h4>
+                <p className="mb-4 text-gray-600">
+                    Comparing average performance scores across gender and generational lines to assess performance consistency and identify any groups requiring specific support or development.
+                </p>
+                <div className="flex flex-col md:flex-row gap-4 mb-4">
+                    <div className="w-full md:w-1/2">
+                        <h5 className="text-lg font-medium text-gray-700 mb-2">Consistency by Gender:</h5>
+                        <ul className="list-disc list-inside text-gray-600">
+                            {consistencyGenderData.map((item, index) => (
+                                <li key={index}>{item.group}: Average Score <span className="font-semibold">{item.consistency}</span></li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div className="w-full md:w-1/2">
+                        <h5 className="text-lg font-medium text-gray-700 mb-2">Consistency by Generation:</h5>
+                        <ul className="list-disc list-inside text-gray-600">
+                            {consistencyGenerationData.map((item, index) => (
+                                <li key={index}>{item.group}: Average Score <span className="font-semibold">{item.consistency}</span></li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+
+                <h4 className="text-xl font-semibold mb-2 mt-4 text-gray-700">Top Performers by Group (Gender × Generation):</h4>
+                <p className="mb-4 text-gray-600">
+                    Segmentation of top performers (defined as Score ≥ 4.0) by combined Gender and Generation groups. This highlights specific demographic segments excelling in performance.
+                </p>
+                <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={topGroupChartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="count" name="Number of Top Performers" fill="#ffc658" radius={[10, 10, 0, 0]} />
+                    </BarChart>
+                </ResponsiveContainer>
+
+                <h4 className="text-xl font-semibold mb-2 mt-4 text-gray-700">Strategic Recommendations:</h4>
+                <ul className="list-disc list-inside text-gray-600">
+                    <li>Identify and address any significant performance disparities across gender or generational groups to ensure fairness and equity.</li>
+                    <li>Implement inclusive development programs to ensure equitable growth opportunities for all employees, regardless of their background.</li>
+                    <li>Monitor diversity metrics in leadership and high-potential pools to foster an equitable and representative talent pipeline.</li>
+                </ul>
+            </div>
+        );
+        setCurrentReport(reportContent);
+    };
+
+    // Function to generate the Correlation Insights report
+    const generateCorrelationInsights = () => {
+        if (!excelData) return;
+
+        // Performance ↔ Job Level
+        const performanceByJobLevel = excelData.reduce((acc, row) => {
+            if (!acc[row['Job Level']]) acc[row['Job Level']] = { scores: [] };
+            acc[row['Job Level']].scores.push(row.Score);
+            return acc;
+        }, {});
+        const jobLevelCorrelationData = Object.keys(performanceByJobLevel).map(level => ({
+            name: level,
+            averageScore: (performanceByJobLevel[level].scores.reduce((sum, s) => sum + s, 0) / performanceByJobLevel[level].scores.length).toFixed(2),
+        }));
+
+        // Performance ↔ Division
+        const performanceByDivision = excelData.reduce((acc, row) => {
+            if (!acc[row.Division]) acc[row.Division] = { scores: [] };
+            acc[row.Division].scores.push(row.Score);
+            return acc;
+        }, {});
+        const divisionCorrelationData = Object.keys(performanceByDivision).map(div => ({
+            name: div,
+            averageScore: (performanceByDivision[div].scores.reduce((sum, s) => sum + s, 0) / performanceByDivision[div].scores.length).toFixed(2),
+        }));
+
+        // Job Level ↔ Grade Consistency
+        // (Assuming consistency means consistency of grade *within* a job level - how many unique grades for a job level?)
+        const jobLevelGradeConsistency = excelData.reduce((acc, row) => {
+            if (!acc[row['Job Level']]) acc[row['Job Level']] = new Set();
+            acc[row['Job Level']].add(row.Grade);
+            return acc;
+        }, {});
+        const gradeConsistencyData = Object.keys(jobLevelGradeConsistency).map(level => ({
+            name: level,
+            uniqueGrades: jobLevelGradeConsistency[level].size,
+            consistencyText: jobLevelGradeConsistency[level].size === 1 ? 'Highly Consistent (Single Grade)' : 'Varied Grades'
+        })).sort((a, b) => a.name.localeCompare(b.name));
+
+        // Age ↔ Performance / Grade Consistency (Using Generation as a proxy for Age)
+        const generationPerformance = excelData.reduce((acc, row) => {
+            if (!acc[row.Generation]) acc[row.Generation] = { scores: [], grades: new Set() };
+            acc[row.Generation].scores.push(row.Score);
+            acc[row.Generation].grades.add(row.Grade);
+            return acc;
+        }, {});
+
+        const generationAnalysisData = Object.keys(generationPerformance).map(gen => ({
+            name: gen,
+            averageScore: (generationPerformance[gen].scores.reduce((sum, s) => sum + s, 0) / generationPerformance[gen].scores.length).toFixed(2),
+            uniqueGrades: generationPerformance[gen].grades.size,
+            gradeConsistencyText: generationPerformance[gen].grades.size === 1 ? 'Consistent (Single Grade)' : 'Varied Grades'
+        })).sort((a, b) => a.name.localeCompare(b.name));
+
+        const reportContent = (
+            <div className="p-6 bg-white rounded-lg shadow-md mb-6">
+                <h3 className="text-2xl font-bold mb-4 text-gray-800">Correlation Insights</h3>
+
+                <h4 className="text-xl font-semibold mb-2 text-gray-700">Performance ↔ Job Level:</h4>
+                <p className="mb-4 text-gray-600">
+                    This chart shows the average performance score for each job level. Analyzing this correlation can indicate if higher job levels are consistently associated with higher performance, or if there are performance peaks and troughs at specific levels, suggesting areas for re-evaluation.
+                </p>
+                <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={jobLevelCorrelationData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis domain={[0, 5]} />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="averageScore" name="Avg Score" fill="#8884d8" radius={[10, 10, 0, 0]} />
+                    </BarChart>
+                </ResponsiveContainer>
+
+                <h4 className="text-xl font-semibold mb-2 mt-4 text-gray-700">Performance ↔ Division:</h4>
+                <p className="mb-4 text-gray-600">
+                    Visualizing average performance across different divisions helps identify which departments consistently excel or face performance challenges. This correlation can guide targeted interventions or highlight successful operational models.
+                </p>
+                <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={divisionCorrelationData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis domain={[0, 5]} />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="averageScore" name="Avg Score" fill="#82ca9d" radius={[10, 10, 0, 0]} />
+                    </BarChart>
+                </ResponsiveContainer>
+
+                <h4 className="text-xl font-semibold mb-2 mt-4 text-gray-700">Job Level ↔ Grade Consistency:</h4>
+                <p className="mb-4 text-gray-600">
+                    This table shows the number of unique grades associated with each job level. High consistency (e.g., only one unique grade per job level) indicates a clear and structured grading system. Variation might suggest flexibility, or conversely, inconsistencies that need review.
+                </p>
+                <div className="overflow-x-auto mb-4">
+                    <table className="min-w-full bg-white border border-gray-200 rounded-md">
+                        <thead>
+                            <tr>
+                                <th className="py-2 px-4 border-b text-left">Job Level</th>
+                                <th className="py-2 px-4 border-b text-left">Unique Grades Found</th>
+                                <th className="py-2 px-4 border-b text-left">Consistency</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {gradeConsistencyData.map((item, index) => (
+                                <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : ''}>
+                                    <td className="py-2 px-4 border-b">{item.name}</td>
+                                    <td className="py-2 px-4 border-b">{item.uniqueGrades}</td>
+                                    <td className="py-2 px-4 border-b font-semibold">{item.consistencyText}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 className="text-xl font-semibold mb-2 mt-4 text-gray-700">Generation ↔ Performance / Grade Consistency:</h4>
+                <p className="mb-4 text-gray-600">
+                    Analyzing performance and grade consistency across different generations helps understand how generational cohorts perform and fit into the grading structure. This can inform tailored talent strategies for different age groups.
+                </p>
+                <div className="overflow-x-auto mb-4">
+                    <table className="min-w-full bg-white border border-gray-200 rounded-md">
+                        <thead>
+                            <tr>
+                                <th className="py-2 px-4 border-b text-left">Generation</th>
+                                <th className="py-2 px-4 border-b text-left">Average Score</th>
+                                <th className="py-2 px-4 border-b text-left">Unique Grades Found</th>
+                                <th className="py-2 px-4 border-b text-left">Grade Consistency</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {generationAnalysisData.map((item, index) => (
+                                <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : ''}>
+                                    <td className="py-2 px-4 border-b">{item.name}</td>
+                                    <td className="py-2 px-4 border-b">{item.averageScore}</td>
+                                    <td className="py-2 px-4 border-b">{item.uniqueGrades}</td>
+                                    <td className="py-2 px-4 border-b font-semibold">{item.gradeConsistencyText}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 className="text-xl font-semibold mb-2 mt-4 text-gray-700">Strategic Recommendations:</h4>
+                <ul className="list-disc list-inside text-gray-600">
+                    <li>Investigate strong correlations between job levels and performance to optimize career progression frameworks and ensure alignment between roles and expectations.</li>
+                    <li>Address any negative correlations or inconsistencies in performance across divisions or job levels through targeted training, mentorship, or organizational restructuring.</li>
+                    <li>Leverage insights from generational performance trends to design inclusive talent management strategies that resonate with different age groups and maximize their contributions.</li>
+                </ul>
+            </div>
+        );
+        setCurrentReport(reportContent);
+    };
+
+    // Export current report as PDF
+    const exportPdf = () => {
+        if (!reportRef.current || !currentReport) {
+            setError('No report to export. Please generate a report first.');
+            return;
+        }
+
+        setLoading(true);
+        setError('');
+        // Ensure html2canvas and jspdf are available globally
+        if (typeof window.html2canvas === 'undefined' || typeof window.jsPDF === 'undefined') {
+            setError('Export libraries not loaded. Please wait a moment and try again, or refresh the page.');
+            setLoading(false);
+            return;
+        }
+
+        window.html2canvas(reportRef.current, {
+            scale: 2, // Higher scale for better quality
+            useCORS: true // Enable CORS if images are from external sources (though none are used here)
+        }).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new window.jsPDF.jsPDF('p', 'mm', 'a4'); // Access jsPDF from window object
+            const imgWidth = 210; // A4 width in mm
+            const pageHeight = 297; // A4 height in mm
+            const imgHeight = canvas.height * imgWidth / canvas.width;
+            let heightLeft = imgHeight;
+            let position = 0;
+
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+            }
+            pdf.save("performance_report.pdf");
+            setLoading(false);
+        }).catch(err => {
+            setError('Error exporting PDF. Please try again.');
+            console.error("PDF export error:", err);
+            setLoading(false);
+        });
+    };
+
+    // Export current data as Excel (exports the *parsed* data as a new Excel file)
+    const exportExcel = () => {
+        if (!excelData || excelData.length === 0) {
+            setError('No data to export to Excel.');
+            return;
+        }
+        setLoading(true);
+        setError('');
+        try {
+            // Ensure XLSX is available globally
+            if (typeof window.XLSX === 'undefined') {
+                setError('XLSX library not loaded. Please wait a moment and try again, or refresh the page.');
+                setLoading(false);
+                return;
+            }
+            // Convert array of JSON objects back to a worksheet
+            const ws = window.XLSX.utils.json_to_sheet(excelData); // Access XLSX from window object
+            const wb = window.XLSX.utils.book_new(); // Access XLSX from window object
+            window.XLSX.utils.book_append_sheet(wb, ws, "EmployeePerformanceData"); // Access XLSX from window object
+            const excelBuffer = window.XLSX.write(wb, { bookType: 'xlsx', type: 'array' }); // Access XLSX from window object
+            const dataBlob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+            saveAs(dataBlob, "employee_performance_data.xlsx");
+        } catch (err) {
+            setError('Error exporting to Excel. Check console for details.');
+            console.error("Excel export error:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-gray-100 font-inter text-gray-800 p-4 sm:p-6 lg:p-8 flex flex-col items-center">
+            {/* Tailwind CSS and Custom Styles */}
+            <style>
+                {`
+                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+                body { font-family: 'Inter', sans-serif; }
+                .button-shadow {
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+                }
+                .button-shadow:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+                }
+                .button-active {
+                    background-color: #4c51bf; /* Darker blue for active state */
+                    color: white;
+                    transform: translateY(0);
+                    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+                }
+                `}
+            </style>
+
+            {/* Header Section */}
+            <header className="w-full max-w-4xl bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6 rounded-t-xl shadow-lg mb-8">
+                <h1 className="text-3xl sm:text-4xl font-bold text-center mb-2">Employee Performance Analytics</h1>
+                <p className="text-center text-blue-100 text-lg">Gain actionable insights from your HR data</p>
+            </header>
+
+            {/* Main Content Area */}
+            <main className="w-full max-w-4xl bg-white rounded-b-xl shadow-lg p-6 flex flex-col md:flex-row gap-6">
+                {/* Left Panel: Upload & Actions */}
+                <aside className="w-full md:w-1/3 p-4 bg-gray-50 rounded-lg shadow-inner">
+                    <h2 className="text-xl font-semibold mb-4 text-gray-800">Data Management</h2>
+                    <label htmlFor="excel-upload" className="block text-sm font-medium text-gray-700 mb-2">Upload/Update Excel File (.xlsx)</label>
+                    <input
+                        type="file"
+                        id="excel-upload"
+                        accept=".xlsx"
+                        onChange={handleFileUpload}
+                        className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    />
+
+                    {/* Loading, Error, and Warning Messages */}
+                    {loading && (
+                        <div className="flex items-center mt-4 text-blue-600">
+                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Processing...
+                        </div>
+                    )}
+                    {error && (
+                        <p className="mt-4 text-red-600 text-sm font-medium">{error}</p>
+                    )}
+                    {warning && (
+                        <p className="mt-4 text-orange-600 text-sm font-medium">{warning}</p>
+                    )}
+
+                    {/* Report Generation Buttons */}
+                    {excelData && (
+                        <div className="mt-6">
+                            <h2 className="text-xl font-semibold mb-4 text-gray-800">Generate Reports</h2>
+                            <div className="grid grid-cols-1 gap-3">
+                                <button
+                                    onClick={generateExecutiveSummary}
+                                    className="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 button-shadow"
+                                >
+                                    Executive Summary
+                                </button>
+                                <button
+                                    onClick={generatePerformanceMetricsOverview}
+                                    className="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 button-shadow"
+                                >
+                                    Performance Metrics Overview
+                                </button>
+                                <button
+                                    onClick={generateOrganizationalInsights}
+                                    className="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 button-shadow"
+                                >
+                                    Organizational Insights
+                                </button>
+                                <button
+                                    onClick={generateCareerTalentDevelopment}
+                                    className="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 button-shadow"
+                                >
+                                    Career & Talent Development
+                                </button>
+                                <button
+                                    onClick={generateDiversityInclusionAnalytics}
+                                    className="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 button-shadow"
+                                >
+                                    Diversity & Inclusion Analytics
+                                </button>
+                                <button
+                                    onClick={generateCorrelationInsights}
+                                    className="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 button-shadow"
+                                >
+                                    Correlation Insights
+                                </button>
+                            </div>
+
+                            {/* Export Buttons */}
+                            <div className="mt-6 flex flex-col gap-3">
+                                <h2 className="text-xl font-semibold mb-2 text-gray-800">Export Report</h2>
+                                <button
+                                    onClick={exportPdf}
+                                    disabled={!currentReport || loading}
+                                    className="w-full py-3 px-4 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed button-shadow"
+                                >
+                                    Export as PDF
+                                </button>
+                                <button
+                                    onClick={exportExcel}
+                                    disabled={!excelData || loading}
+                                    className="w-full py-3 px-4 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed button-shadow"
+                                >
+                                    Export Original Data as Excel
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </aside>
+
+                {/* Right Panel: Report Display */}
+                <section className="w-full md:w-2/3 p-4 bg-white rounded-lg shadow-md border border-gray-200 overflow-auto">
+                    <h2 className="text-xl font-semibold mb-4 text-gray-800">Analysis Report</h2>
+                    <div ref={reportRef} className="report-content">
+                        {currentReport || (excelData ? (
+                            <div className="text-center text-gray-500 p-8">
+                                <p className="mb-2">Data loaded successfully!</p>
+                                {warning && <p className="mt-2 text-orange-600 text-sm font-medium">{warning}</p>}
+                                <p>Please select a report from the left panel to begin analysis.</p>
+                                <p className="mt-4 font-semibold text-blue-600">
+                                    Total Records Processed: {excelData.length}
+                                </p>
+                                <p className="text-sm text-gray-400 mt-2">
+                                    Full functionality requires these columns: <br/>
+                                    <span className="font-mono text-xs">{EXPECTED_COLUMNS.join(', ')}</span>
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="text-center text-gray-500 p-8">
+                                <p className="text-lg mb-4">Welcome to Employee Performance Analytics!</p>
+                                <p className="text-base mb-4">Upload an Excel file to get started with powerful insights.</p>
+                                <p className="text-sm">For optimal analysis, your Excel file should include the following columns:</p>
+                                <p className="font-mono text-xs text-gray-600 mt-2">
+                                    Employee ID, Name, Grade, Score, Division, Gender, Generation, Job Level, Join Date, Performance Manager, Year
+                                </p>
+                                <p className="text-sm font-semibold mt-4 text-red-500">
+                                    Note: For accurate year-over-year trends, your Excel file should have a 'Year' column for performance entries, or contain multi-year data per employee.
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            </main>
+
+            {/* Footer Section */}
+            <footer className="w-full max-w-4xl mt-8 text-center text-gray-600 text-sm">
+                &copy; {new Date().getFullYear()} Employee Performance Analytics. All rights reserved.
+            </footer>
+        </div>
+    );
+};
+
+export default App;
