@@ -139,11 +139,6 @@
                             from { transform: scale(1); opacity: 0.7; }
                             to { transform: scale(1.1); opacity: 0.9; }
                         }
-                        .animate-dash {
-                            stroke-dasharray: 1000;
-                            stroke-dashoffset: 1000;
-                            animation: dash 5s linear infinite;
-                        }
                         @keyframes dash {
                             to {
                                 stroke-dashoffset: 0;
@@ -245,8 +240,13 @@
             <h2 class="font-montserrat text-3xl md:text-4xl font-bold text-[#0404cc] mb-8 text-center">Dashboard Overview</h2>
             <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
                 <p class="font-inter text-gray-700 mb-4">This section provides a high-level overview of the key performance metrics across the organization. It aggregates data from various departments and job levels to give a holistic view of employee performance, trends, and overall organizational health. Use this dashboard to quickly identify areas of strength and opportunities for improvement.</p>
-                <div class="chart-container mt-8">
-                    <canvas id="dashboardOverviewChart"></canvas>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                    <div class="chart-container">
+                        <canvas id="averageScoreChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="stackedBarChart"></canvas>
+                    </div>
                 </div>
             </div>
         </section>
@@ -519,7 +519,10 @@
                     targetPage.classList.remove('hidden');
                     targetPage.classList.add('active');
                     // Render chart if it's a chart page
-                    if (pageId === 'dashboard-overview-page') renderDashboardOverviewChart(); // New chart render call
+                    if (pageId === 'dashboard-overview-page') {
+                        renderAverageScoreChart();
+                        renderStackedBarChart();
+                    }
                     if (pageId === 'divisions-page') renderDivisionsChart();
                     if (pageId === 'job-levels-page') renderJobLevelsChart();
                     if (pageId === 'career-occupational-page') renderCareerOccupationalChart();
@@ -563,33 +566,35 @@
                 fontFamily: 'Inter'
             };
 
-            // Render Dashboard Overview Chart (New)
-            const renderDashboardOverviewChart = () => {
-                destroyChart('dashboardOverviewChart'); // Destroy previous instance
-                const ctx = document.getElementById('dashboardOverviewChart').getContext('2d');
-                charts.dashboardOverviewChart = new Chart(ctx, {
-                    type: 'bar',
+            // Render Average Score Chart (New)
+            const renderAverageScoreChart = () => {
+                destroyChart('averageScoreChart');
+                const ctx = document.getElementById('averageScoreChart').getContext('2d');
+                charts.averageScoreChart = new Chart(ctx, {
+                    type: 'doughnut', // Using doughnut for a simple score visualization
                     data: {
-                        labels: ['Outstanding', 'Exceeds', 'Meets', 'Below Expectations'],
+                        labels: ['Average Score', 'Remaining'],
                         datasets: [{
-                            label: 'Overall Performance Distribution (%)',
-                            data: [7, 22, 68, 2], // From Strategic Insights table
+                            data: [3.5, 5 - 3.5], // Score out of 5
                             backgroundColor: [
-                                '#0c9b2c', '#f7e815', '#0404cc', '#dc2626' /* red-600 for below expectations */
+                                '#0404cc', // Blue for the score
+                                '#e0e0e0'  // Light grey for remaining
                             ],
                             borderColor: [
-                                '#0c9b2c', '#f7e815', '#0404cc', '#dc2626'
+                                '#ffffff',
+                                '#ffffff'
                             ],
-                            borderWidth: 1
+                            borderWidth: 2
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        cutout: '70%', // Make it a ring
                         plugins: {
                             title: {
                                 display: true,
-                                text: 'Overall Performance Rating Distribution',
+                                text: 'Overall Average Performance Score',
                                 font: {
                                     size: commonFontSettings.titleSize,
                                     family: 'Montserrat'
@@ -597,6 +602,111 @@
                                 color: '#0404cc'
                             },
                             tooltip: {
+                                enabled: false // Disable tooltips for this simple display
+                            },
+                            legend: {
+                                display: false // Hide legend
+                            },
+                            datalabels: { // Custom plugin for displaying the score in the center
+                                display: true,
+                                color: '#0404cc',
+                                font: {
+                                    size: 48,
+                                    weight: 'bold',
+                                    family: 'Montserrat'
+                                },
+                                formatter: (value, context) => {
+                                    if (context.dataIndex === 0) {
+                                        return value.toFixed(1); // Display the score
+                                    }
+                                    return '';
+                                }
+                            }
+                        }
+                    },
+                    plugins: [{
+                        id: 'averageScoreText',
+                        beforeDraw: function(chart) {
+                            const ctx = chart.ctx;
+                            const width = chart.width;
+                            const height = chart.height;
+                            ctx.restore();
+                            const fontSize = (height / 114).toFixed(2);
+                            ctx.font = `${fontSize}em Montserrat`;
+                            ctx.textBaseline = 'middle';
+                            const text = '3.5'; // The average score
+                            const textX = Math.round((width - ctx.measureText(text).width) / 2);
+                            const textY = height / 2;
+                            ctx.fillText(text, textX, textY);
+                            ctx.save();
+                        }
+                    }]
+                });
+            };
+
+
+            // Render Stacked Bar Chart (New)
+            const renderStackedBarChart = () => {
+                destroyChart('stackedBarChart');
+                const ctx = document.getElementById('stackedBarChart').getContext('2d');
+                charts.stackedBarChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['2022', '2023', '2024'],
+                        datasets: [
+                            {
+                                label: 'Poor performance',
+                                data: [1, 1, 1],
+                                backgroundColor: '#dc2626', // Red
+                                borderColor: '#ffffff',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Below expectations',
+                                data: [0, 1, 2],
+                                backgroundColor: '#f7e815', // Yellow
+                                borderColor: '#ffffff',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Meet expectations',
+                                data: [69, 63, 67],
+                                backgroundColor: '#0404cc', // Blue
+                                borderColor: '#ffffff',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Exceed expectations',
+                                data: [27, 25, 22],
+                                backgroundColor: '#84cc16', // Light Green (Lime 500)
+                                borderColor: '#ffffff',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Outstanding',
+                                data: [3, 10, 7],
+                                backgroundColor: '#16a34a', // Dark Green (Green 600)
+                                borderColor: '#ffffff',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Performance Distribution Over Years',
+                                font: {
+                                    size: commonFontSettings.titleSize,
+                                    family: 'Montserrat'
+                                },
+                                color: '#0404cc'
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
                                 callbacks: {
                                     label: function(context) {
                                         let label = context.dataset.label || '';
@@ -609,10 +719,36 @@
                                         return label;
                                     }
                                 }
+                            },
+                            legend: {
+                                labels: {
+                                    font: {
+                                        size: commonFontSettings.tickLabelSize,
+                                        family: commonFontSettings.fontFamily
+                                    }
+                                }
                             }
                         },
                         scales: {
+                            x: {
+                                stacked: true,
+                                title: {
+                                    display: true,
+                                    text: 'Year',
+                                    font: {
+                                        size: commonFontSettings.axisTitleSize,
+                                        family: commonFontSettings.fontFamily
+                                    }
+                                },
+                                ticks: {
+                                    font: {
+                                        size: commonFontSettings.tickLabelSize,
+                                        family: commonFontSettings.fontFamily
+                                    }
+                                }
+                            },
                             y: {
+                                stacked: true,
                                 beginAtZero: true,
                                 max: 100,
                                 title: {
@@ -630,22 +766,6 @@
                                     },
                                     callback: function(value) {
                                         return value + '%';
-                                    }
-                                }
-                            },
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Performance Category',
-                                    font: {
-                                        size: commonFontSettings.axisTitleSize,
-                                        family: commonFontSettings.fontFamily
-                                    }
-                                },
-                                ticks: {
-                                    font: {
-                                        size: commonFontSettings.tickLabelSize,
-                                        family: commonFontSettings.fontFamily
                                     }
                                 }
                             }
