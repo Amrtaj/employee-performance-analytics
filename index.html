@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Montserrat for headings, Inter for body -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* Custom styles for specific fonts */
         .font-montserrat {
@@ -36,6 +38,7 @@
         }
 
         /* Staggered animation delays */
+        .card-0 { animation-delay: 0s; } /* Added for the new Dashboard card */
         .card-1 { animation-delay: 0.1s; }
         .card-2 { animation-delay: 0.2s; }
         .card-3 { animation-delay: 0.3s; }
@@ -60,13 +63,30 @@
         /* Chart container styling for responsiveness */
         .chart-container {
             width: 100%;
-            max-width: 900px; /* Adjust max-width as needed */
+            max-width: 900px; /* Original max-width for reference, overridden by Tailwind below */
             margin: 0 auto;
             background-color: white;
             border-radius: 0.75rem; /* rounded-xl */
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
             padding: 1.5rem; /* p-6 */
             overflow-x: auto; /* Enable horizontal scrolling if chart is too wide */
+        }
+
+        /* Responsive adjustments for chart container using Tailwind classes */
+        @media (min-width: 640px) { /* sm breakpoint */
+            .chart-container {
+                max-width: 640px; /* sm:max-w-xl */
+            }
+        }
+        @media (min-width: 768px) { /* md breakpoint */
+            .chart-container {
+                max-width: 768px; /* md:max-w-2xl */
+            }
+        }
+        @media (min-width: 1024px) { /* lg breakpoint */
+            .chart-container {
+                max-width: 1024px; /* lg:max-w-4xl */
+            }
         }
     </style>
 </head>
@@ -144,6 +164,20 @@
         <section id="home-cards" class="container mx-auto px-6 py-12 md:py-16 page-section active">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
 
+                <!-- New Card 0: Dashboard Overview -->
+                <a href="#" class="block group card-animation card-0 col-span-full" data-target-page="dashboard-overview-page">
+                    <div class="bg-white rounded-xl shadow-lg p-4 md:p-6 flex flex-col items-center text-center transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl hover:border-2 hover:border-[#0404cc] border-2 border-transparent">
+                        <div class="mb-3">
+                            <svg class="w-12 h-12 text-[#0404cc] group-hover:text-[#f7e815] transition-colors duration-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 4.5h14.25v9.75H3V4.5z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M18.75 9V7.5a2.25 2.25 0 00-2.25-2.25H15M18.75 9v4.5M18.75 9h-3M12 18.75h9M12 15.75h9M12 12.75h9"></path>
+                            </svg>
+                        </div>
+                        <h3 class="font-montserrat text-xl font-bold text-[#0404cc] group-hover:text-[#f7e815] transition-colors duration-300 mb-1">Dashboard Overview</h3>
+                        <p class="font-inter text-sm text-gray-600">A comprehensive summary of key performance indicators.</p>
+                    </div>
+                </a>
+
                 <!-- Card 1: Strategic Insights -->
                 <a href="#" class="block group card-animation card-1" data-target-page="strategic-insights-page">
                     <div class="bg-white rounded-xl shadow-lg p-4 md:p-6 flex flex-col items-center text-center transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl hover:border-2 hover:border-[#f7e815] border-2 border-transparent">
@@ -205,17 +239,31 @@
                         <div class="mb-3">
                             <svg class="w-12 h-12 text-[#0c9b2c] group-hover:text-[#f7e815] transition-colors duration-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a4.5 4.5 0 002.32-.71.75.75 0 00.03-.974l-.324-.47a1.5 1.5 0 00-1.238-.375 1.5 1.5 0 01-1.292-.7c-.166-.381-.219-.785-.219-1.213v-.36c0-1.1.9-2 2-2h1.375C21.26 8.52 22.5 7.08 22.5 5.25a2.25 2.25 0 00-4.5 0c0 1.03-.352 2-.75 2.96L17.75 11H14.25c-.278 0-.543.06-.788.17-.774.364-1.282 1.156-1.282 2.02V15M2.25 12h1.5m1.5 0h1.5m1.5 0h1.5m-1.5 0H3.75a1.5 1.5 0 00-1.5 1.5v2.25c0 .858.747 1.595 1.766 1.796M12 6V3m0 3V9"></path>
-                        </svg>
+                            </svg>
+                        </div>
+                        <h3 class="font-montserrat text-xl font-bold text-[#0404cc] group-hover:text-[#f7e815] transition-colors duration-300 mb-1">Generational Excellence & Future Readiness</h3>
+                        <p class="font-inter text-sm text-gray-600">Insights into performance across generations and future readiness.</p>
                     </div>
-                    <h3 class="font-montserrat text-xl font-bold text-[#0404cc] group-hover:text-[#f7e815] transition-colors duration-300 mb-1">Generational Excellence & Future Readiness</h3>
-                    <p class="font-inter text-sm text-gray-600">Insights into performance across generations and future readiness.</p>
-                </div>
-            </a>
+                </a>
 
             </div>
         </section>
 
-        <!-- New Strategic Insights Page -->
+        <!-- New Dashboard Overview Page -->
+        <section id="dashboard-overview-page" class="page-section hidden container mx-auto px-6 py-12 md:py-16">
+            <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300 mb-8">
+                &larr; Back to Home
+            </button>
+            <h2 class="font-montserrat text-3xl md:text-4xl font-bold text-[#0404cc] mb-8 text-center">Dashboard Overview</h2>
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
+                <p class="font-inter text-gray-700 mb-4">This section provides a high-level overview of the key performance metrics across the organization. It aggregates data from various departments and job levels to give a holistic view of employee performance, trends, and overall organizational health. Use this dashboard to quickly identify areas of strength and opportunities for improvement.</p>
+                <div class="chart-container mt-8">
+                    <canvas id="dashboardOverviewChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Strategic Insights Page (Existing) -->
         <section id="strategic-insights-page" class="page-section hidden container mx-auto px-6 py-12 md:py-16">
             <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300 mb-8">
                 &larr; Back to Home
@@ -413,8 +461,7 @@
                 </ol>
 
                 <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">Conclusion</h4>
-                <p class="font-inter text-gray-700">Our 2024 performance data reveal a highly capable workforce with superior talent density yet also underscores the urgency to calibrate excellence reimagine rewards and empower managers. By acting decisively on these recommendations, we transform latent potential into sustained market leadership. HR will partner with all functions to embed these strategies into our 2025 operational cadence, ensuring performance excellence drives measurable business growth.</p>
-
+                <p class="font-inter text-gray-700">Our 2024 performance data reveal a highly capable workforce with superior talent density yet also underscores the urgency to calibrate excellence.</p>
             </div>
         </section>
 
@@ -423,146 +470,9 @@
             <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300 mb-8">
                 &larr; Back to Home
             </button>
-            <h2 class="font-montserrat text-3xl md:text-4xl font-bold text-[#0404cc] mb-8 text-center">Divisions: Organizational Excellence & Strategic Growth Pathways</h2>
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Celebrating Resilience, Catalyzing Growth</h3>
-                <p class="font-inter text-gray-700 mb-4">Let’s build on our strengths, own our opportunities, and pioneer the future—together.</p>
-                <p class="font-inter text-gray-700 mb-4">While divisions like IT (3.8 avg) and Supply Chain (3.6 avg) set new performance benchmarks, we identified critical opportunities to align talent strategies with market leadership ambitions.</p>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">Top-Performing Divisions</h4>
-                <ul class="list-disc list-inside ml-4 mb-4 text-gray-700">
-                    <li><strong>IT:</strong> 3.8 avg, 41% high performers
-                        <ul class="list-circle list-inside ml-4">
-                            <li>Managerial Track: 18% rated as outstanding and 45% rated as exceed</li>
-                            <li>Individual Contributors: 29% exceed expectations, 9% rated as outstanding</li>
-                        </ul>
-                    </li>
-                    <li><strong>Finance & Supply Chain:</strong> 3.6 avg, 26–28% high performers</li>
-                    <li><strong>Regulatory Affairs:</strong> 3.6 avg, 25% exceed expectations</li>
-                </ul>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">Key Themes</h4>
-                <ul class="list-disc list-inside ml-4 mb-4 text-gray-700">
-                    <li><strong>Strength:</strong> Exceptional talent density in technical functions with overall 16% of out performer employees while support functions stand at 13%.</li>
-                    <li><strong>Opportunity:</strong> Rebalance rewards to sustain high-performer engagement.</li>
-                    <li><strong>Focus:</strong> Urgent calibration in HR, Legal, and Marketing to address polarization.</li>
-                </ul>
-                <p class="font-inter text-gray-700 mb-4">Benchmarked against Middle East telecom peers (Etisalat, STC, Ooredoo, Zain) via industry reports and PwC/KPMG regional surveys.</p>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">2. Findings & Explanations: Division-Level Performance</h4>
-                <div class="overflow-x-auto mb-4">
-                    <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-sm">
-                        <thead>
-                            <tr>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Division</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Avg Score</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Benchmark Avg</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">High Performers</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Benchmark High Performers</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">IT</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.8</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.4–3.6</td><td class="py-2 px-4 border-b text-sm text-gray-600">41%</td><td class="py-2 px-4 border-b text-sm text-gray-600">25–30%</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Finance</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.6</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.5–3.7</td><td class="py-2 px-4 border-b text-sm text-gray-600">26%</td><td class="py-2 px-4 border-b text-sm text-gray-600">20–25%</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Supply Chain</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.6</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.5–3.7</td><td class="py-2 px-4 border-b text-sm text-gray-600">28%</td><td class="py-2 px-4 border-b text-sm text-gray-600">20–25%</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Sales</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.4</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.5–3.7</td><td class="py-2 px-4 border-b text-sm text-gray-600">25%</td><td class="py-2 px-4 border-b text-sm text-gray-600">20–25%</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">HR</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.4</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.4–3.6</td><td class="py-2 px-4 border-b text-sm text-gray-600">34%</td><td class="py-2 px-4 border-b text-sm text-gray-600">15–20%</td></tr>
-                            <tr><td class="py-2 px-4 text-sm text-gray-600">Marketing</td><td class="py-2 px-4 text-sm text-gray-600">3.4</td><td class="py-2 px-4 text-sm text-gray-600">3.5–3.7</td><td class="py-2 px-4 text-sm text-gray-600">38%</td><td class="py-2 px-4 text-sm text-gray-600">20–25%</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">Critical Observations</h4>
-                <ul class="list-disc list-inside ml-4 mb-4 text-gray-700">
-                    <li><strong>IT Outperformance:</strong> 41% high performers (vs. 30% benchmark) signals exceptional talent density—validate impact on revenue/innovation KPIs.</li>
-                    <li><strong>Sales Lag:</strong> 3.4 avg (below benchmark) with only 25% high performers. Aligns with regional customer churn challenges.</li>
-                    <li><strong>HR & Legal Anomalies:</strong>
-                        <ul class="list-circle list-inside ml-4">
-                            <li><strong>HR:</strong> 14% underperformers (vs. 2% org average) This highlights an opportunity to explore areas such as capability development, hiring alignment, cultural fit, compensation structures, and leadership support. Addressing these factors can unlock greater potential and strengthen HR’s strategic impact across the organization( For further analysis )</li>
-                            <li><strong>Legal:</strong> 9% "Outstanding" but 0% "Exceeds"—binary rating culture requiring recalibration.</li>
-                        </ul>
-                    </li>
-                    <li><strong>Marketing Polarization:</strong> Highest "Exceeds" (32%) but highest "Poor" (6%)—inconsistent standards.</li>
-                </ul>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">3. Strategic Insights: Building on Strengths</h4>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Progress Celebrations</h5>
-                <ul class="list-disc list-inside ml-4 mb-4 text-gray-700">
-                    <li><strong>Technical Excellence:</strong> IT’s 3.8 avg score reflects world-class digital capability—a springboard for new innovation.</li>
-                    <li><strong>Operational Backbone:</strong> Finance/Supply Chain consistency (3.6 avg) ensures financial resilience in volatile markets.</li>
-                    <li><strong>High-Performer Culture:</strong> 29% org-wide high performers (Exceeds + Outstanding) outpaces regional peers by 10–15%.</li>
-                </ul>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Growth Catalysts</h5>
-                <ul class="list-disc list-inside ml-4 mb-4 text-gray-700">
-                    <li><strong>Untapped Commercial Potential:</strong> Shifting Sales to benchmark avg (3.5–3.7) could increase revenue by 8–12% (based on peer correlation studies).</li>
-                    <li><strong>HR Transformation:</strong> Closing capability development, hiring alignment, cultural fit, compensation structures, and leadership support. Addressing these factors can unlock greater potential and strengthen HR’s strategic impact across the organization, Could reduce underperformance by 60% in 18 months.</li>
-                </ul>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">4. Risks & Challenges: Navigating Headwinds</h4>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Risk Matrix: Impact vs. Urgency</h5>
-                <div class="overflow-x-auto mb-4">
-                    <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-sm">
-                        <thead>
-                            <tr>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Risk</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Impact</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Urgency</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Mitigation Focus</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">HR Capability Crisis</td><td class="py-2 px-4 border-b text-sm text-gray-600">High (5)</td><td class="py-2 px-4 border-b text-sm text-gray-600">Immediate</td><td class="py-2 px-4 border-b text-sm text-gray-600">Leadership/development overhaul, further analysis is needed</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Sales Performance Lag</td><td class="py-2 px-4 border-b text-sm text-gray-600">High (4)</td><td class="py-2 px-4 border-b text-sm text-gray-600">Short-term</td><td class="py-2 px-4 border-b text-sm text-gray-600">Skill uplift</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">IT Rating Inflation</td><td class="py-2 px-4 border-b text-sm text-gray-600">Medium (3)</td><td class="py-2 px-4 border-b text-sm text-gray-600">Medium-term</td><td class="py-2 px-4 border-b text-sm text-gray-600">Calibration vs. business impact</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Marketing Consistency Gaps</td><td class="py-2 px-4 border-b text-sm text-gray-600">Medium (3)</td><td class="py-2 px-4 border-b text-sm text-gray-600">Medium-term</td><td class="py-2 px-4 border-b text-sm text-gray-600">Accountability Under Uncertainty + Role clarity + KPI alignment + rigid accountability (further analysis is to be conducted)</td></tr>
-                            <tr><td class="py-2 px-4 text-sm text-gray-600">Legal Binary Rating Culture</td><td class="py-2 px-4 text-sm text-gray-600">Low (2)</td><td class="py-2 px-4 text-sm text-gray-600">Long-term</td><td class="py-2 px-4 text-sm text-gray-600">Redefine expectations</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Business Impact if Unaddressed</h5>
-                <ul class="list-disc list-inside ml-4 mb-4 text-gray-700">
-                    <li>With 14% of HR roles currently underperforming, there is a potential ripple effect that could increase talent attrition by up to 15% in other functions. As a strategic partner, HR plays a critical role in shaping employee experience, engagement, and retention. Strengthening HR capabilities now will not only improve internal performance but also safeguard broader organizational health and continuity.</li>
-                    <li><strong>Sales:</strong> Failure to reach benchmarks risks 5–7% revenue loss to competitors.</li>
-                    <li><strong>IT:</strong> Unvalidated high ratings may misallocate 20% of reward budgets.</li>
-                </ul>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">5. Recommendations: Targeted Actions for Growth</h4>
-                <ul class="list-disc list-inside ml-4 mb-4 text-gray-700">
-                    <li>In the short term, implement targeted upskilling initiatives to address capability gaps.</li>
-                    <li>Aim to reduce underperformance levels to 5% or below.</li>
-                    <li>In the long term, embed a comprehensive commercial excellence program.</li>
-                    <li>In the short term, conduct a calibration audit to assess alignment between performance ratings and revenue impact.</li>
-                    <li>In the long term, introduce an innovation reward framework to encourage value-driven contributions.</li>
-                    <li>Ensure that 90% of top-rated talent demonstrably drives business value.</li>
-                    <li>In the short term, facilitate role clarity workshops to improve alignment and expectations.</li>
-                    <li>In the long term, implement data-driven tools to support fair and consistent performance ratings.</li>
-                    <li>In the long term, redefine benchmarks for “Exceeds Expectations” to ensure clarity and consistency.</li>
-                    <li>Strive for a balanced and credible distribution of performance ratings.</li>
-                </ul>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">6. HR Lens – Strategic Projects</h4>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Remedial Projects (Close Critical Gaps)</h5>
-                <ol class="list-decimal list-inside ml-4 mb-4 text-gray-700">
-                    <li><strong>Project Spotlight:</strong> Leadership assessment + high-impact training in performance management.
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Outcome: Reduce underperformance from 2% to 1%</li>
-                        </ul>
-                    </li>
-                    <li><strong>Project Calibrate:</strong> Revenue-impact analysis + peer benchmarking and manager auditing.
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Outcome: Ensure 100% of top ratings map to measurable business outcomes.</li>
-                        </ul>
-                    </li>
-                    <li><strong>Project Nexus:</strong> Focus: Leadership pipeline for technical talent. Actions: High-potential accelerator for IT/Supply Chain stars.
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Outcome: Fill 80% of critical tech leadership roles internally by 2026.</li>
-                        </ul>
-                    </li>
-                </ol>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">Conclusion: From Stability to Industry Leadership</h4>
-                <p class="font-inter text-gray-700 mb-4">By urgently addressing calibration in HR, Legal, and Marketing, strategically amplifying Sales and IT, and future-proofing our workforce through targeted initiatives, we will transform latent potential into measurable market advantage.</p>
-                <p class="font-inter text-gray-600 text-sm">Benchmark Sources: PwC Middle East Telecom Talent Report 2024, STC Sustainability Study, Etisalat Performance Benchmarking*</p>
+            <h2 class="font-montserrat text-3xl md:text-4xl font-bold text-[#0404cc] mb-8 text-center">Divisional Performance Overview</h2>
+            <div class="chart-container">
+                <canvas id="divisionsChart"></canvas>
             </div>
         </section>
 
@@ -571,172 +481,9 @@
             <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300 mb-8">
                 &larr; Back to Home
             </button>
-            <h2 class="font-montserrat text-3xl md:text-4xl font-bold text-[#0404cc] mb-8 text-center">Job Levels: Elevating Excellence Through Calibrated Growth</h2>
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Forward, together building on strength, grounded in excellence</h3>
-                <p class="font-inter text-gray-700 mb-4">Our technical talent demonstrated exceptional strength, while leadership levels showed opportunities for calibration refinement. Key highlights:</p>
-                <ul class="list-disc list-inside ml-4 mb-4 text-gray-700">
-                    <li>Technical Excellence: Engineering/Expert roles outperformed benchmarks (avg 3.6-3.7)</li>
-                    <li>Leadership Pipeline Strength: Senior Managers lead with 76% high performers</li>
-                    <li>Calibration Opportunity: Address rating extremes at Fellow/Senior Director levels</li>
-                </ul>
-                <p class="font-inter text-gray-700 mb-4">Benchmarked against Middle East telecom peers (STC, Etisalat, Ooredoo) per PwC Regional Talent Report 2024.</p>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">2. Findings & Explanations: Performance by Career Level</h4>
-                <div class="overflow-x-auto mb-4">
-                    <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-sm">
-                        <thead>
-                            <tr>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Career Level</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Avg Score</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">High Performers</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Underperformers</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Benchmark Avg</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Variance</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Fellow/Senior Director</td><td class="py-2 px-4 border-b text-sm text-gray-600">4.8</td><td class="py-2 px-4 border-b text-sm text-gray-600">100%</td><td class="py-2 px-4 border-b text-sm text-gray-600">0%</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.8-4.0</td><td class="py-2 px-4 border-b text-sm text-gray-600">⚠️ Critical Inflation</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Senior Manager</td><td class="py-2 px-4 border-b text-sm text-gray-600">4</td><td class="py-2 px-4 border-b text-sm text-gray-600">76%</td><td class="py-2 px-4 border-b text-sm text-gray-600">2%</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.5-3.7</td><td class="py-2 px-4 border-b text-sm text-gray-600">⚠️ Moderate Inflation</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Expert/Adviser</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.7-3.9</td><td class="py-2 px-4 border-b text-sm text-gray-600">38-52%</td><td class="py-2 px-4 border-b text-sm text-gray-600">0-3%</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.4-3.6</td><td class="py-2 px-4 border-b text-sm text-gray-600">✅ Strong Performance</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Engineer/Technician</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.4-3.6</td><td class="py-2 px-4 border-b text-sm text-gray-600">23-30%</td><td class="py-2 px-4 border-b text-sm text-gray-600">2-5%</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.3-3.5</td><td class="py-2 px-4 border-b text-sm text-gray-600">✅ Alignment</td></tr>
-                            <tr><td class="py-2 px-4 text-sm text-gray-600">Specialist/Professional</td><td class="py-2 px-4 text-sm text-gray-600">3.3-3.4</td><td class="py-2 px-4 text-sm text-gray-600">18-20%</td><td class="py-2 px-4 text-sm text-gray-600">3-4%</td><td class="py-2 px-4 text-sm text-gray-600">3.2-3.4</td><td class="py-2 px-4 text-sm text-gray-600">🔍 Development Focus</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">Critical Trends & Explanations</h4>
-                <ol class="list-decimal list-inside ml-4 mb-4 text-gray-700">
-                    <li><strong>Leadership Rating Extremes:</strong>
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Fellow/Senior Director: 100% "Outstanding" (vs. 15-20% benchmark)</li>
-                            <li>Root Cause: "Halo effect," calibration gaps in executive assessments</li>
-                            <li>Benchmark Context: STC caps top ratings at 20% for leadership roles</li>
-                        </ul>
-                    </li>
-                    <li><strong>Senior Management Strength:</strong>
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Senior Managers: 56% "Exceeds" + 20% "Outstanding"</li>
-                            <li>Positive Driver: Effective succession planning in critical roles</li>
-                            <li>Industry Parallel: Etisalat shows similar high-performer density in growth units</li>
-                        </ul>
-                    </li>
-                    <li><strong>Technical Talent Excellence:</strong>
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Engineers/Experts: Consistent 3.6+ avg scores</li>
-                            <li>Strategic Advantage: Positions us for 5G/digital infrastructure leadership</li>
-                        </ul>
-                    </li>
-                    <li><strong>Specialist Development Opportunity:</strong>
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Higher underperformance (3-4%) vs. peers</li>
-                            <li>Correlation: New hire onboarding effectiveness scores 15% below benchmark</li>
-                        </ul>
-                    </li>
-                </ol>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">3. Strategic Insights</h4>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Progress Celebrations</h5>
-                <ul class="list-disc list-inside ml-4 mb-4 text-gray-700">
-                    <li>Technical Backbone: Engineering roles (avg 3.6) exceed regional benchmarks by 8%</li>
-                    <li>Operational Consistency: 67% meet expectations across all levels</li>
-                    <li>Leadership Bench Strength: Senior Managers show readiness for director roles</li>
-                </ul>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Growth Catalysts</h5>
-                <ul class="list-disc list-inside ml-4 mb-4 text-gray-700">
-                    <li>Expertise Leverage: Experts/Advisers (52% high performers) can mentor Specialist cohort</li>
-                    <li>Calibration Opportunity: Aligning Fellow ratings to norms could free rewards for true top talent</li>
-                    <li>Digital Readiness: Engineer high-performer density (32%) supports AI/automation initiatives</li>
-                </ul>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">4. Risks & Challenges</h4>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Risk Matrix: Impact vs. Urgency</h5>
-                <div class="overflow-x-auto mb-4">
-                    <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-sm">
-                        <thead>
-                            <tr>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Risk</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Impact</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Urgency</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Mitigation Focus</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Leadership Credibility Erosion</td><td class="py-2 px-4 border-b text-sm text-gray-600">High 5</td><td class="py-2 px-4 border-b text-sm text-gray-600">Immediate</td><td class="py-2 px-4 border-b text-sm text-gray-600">Executive calibration framework</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Specialist Capability Gaps</td><td class="py-2 px-4 border-b text-sm text-gray-600">Med 3</td><td class="py-2 px-4 border-b text-sm text-gray-600">Short-term</td><td class="py-2 px-4 border-b text-sm text-gray-600">Targeted upskilling</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Reward Budget Misallocation</td><td class="py-2 px-4 border-b text-sm text-gray-600">High 4</td><td class="py-2 px-4 border-b text-sm text-gray-600">Medium-term</td><td class="py-2 px-4 border-b text-sm text-gray-600">Performance-reward alignment</td></tr>
-                            <tr><td class="py-2 px-4 text-sm text-gray-600">Succession Pipeline Imbalance</td><td class="py-2 px-4 text-sm text-gray-600">Med 3</td><td class="py-2 px-4 text-sm text-gray-600">Long-term</td><td class="py-2 px-4 text-sm text-gray-600">Cross-level development paths</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Business Impact Analysis</h5>
-                <ul class="list-disc list-inside ml-4 mb-4 text-gray-700">
-                    <li>Uncalibrated leadership ratings could increase employee survey distrust by 25%</li>
-                    <li>Specialist underperformance risks 5-7% productivity loss in support functions</li>
-                    <li>Engineering talent poaching may accelerate without recognition of true top performers</li>
-                </ul>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">5. Recommendations</h4>
-                <div class="overflow-x-auto mb-4">
-                    <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-sm">
-                        <thead>
-                            <tr>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Focus Area</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Short-Term (2025)</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Long-Term (2026+)</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Expected Outcome</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Leadership Calibration</td><td class="py-2 px-4 border-b text-sm text-gray-600">Redefine executive KPIs</td><td class="py-2 px-4 border-b text-sm text-gray-600">Independent review board</td><td class="py-2 px-4 border-b text-sm text-gray-600">Reduce inflated ratings by 40%</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Technical Rewards</td><td class="py-2 px-4 border-b text-sm text-gray-600">Spot awards for Engineer excellence</td><td class="py-2 px-4 border-b text-sm text-gray-600">Dual-career technical ladder</td><td class="py-2 px-4 border-b text-sm text-gray-600">Increase retention by 20%</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Specialist Development</td><td class="py-2 px-4 border-b text-sm text-gray-600">Skills diagnostics + micro-credentials</td><td class="py-2 px-4 border-b text-sm text-gray-600">Apprenticeship programs</td><td class="py-2 px-4 border-b text-sm text-gray-600">Reduce underperformance by 50%</td></tr>
-                            <tr><td class="py-2 px-4 text-sm text-gray-600">Enterprise Calibration</td><td class="py-2 px-4 text-sm text-gray-600">Level-specific rating workshops</td><td class="py-2 px-4 text-sm text-gray-600">AI-driven calibration tools</td><td class="py-2 px-4 text-sm text-gray-600">Achieve 90% benchmark alignment</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Feasibility Assessment</h5>
-                <ul class="list-disc list-inside ml-4 mb-4 text-gray-700">
-                    <li>Quick Win: Technical spot awards (utilizes existing reward infrastructure)</li>
-                    <li>High Impact: Executive KPI redesign (requires board approval but high ROI)</li>
-                </ul>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">6. HR Lens – Strategic Projects</h4>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Remedial Projects (Address Gaps)</h5>
-                <ol class="list-decimal list-inside ml-4 mb-4 text-gray-700">
-                    <li><strong>Project Anchor:</strong> Focus: Executive calibration overhaul. Actions: Strategy-linked KPIs, 360° input for leadership ratings.
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Outcome: Achieve benchmark-aligned distribution by Q4 2025</li>
-                        </ul>
-                    </li>
-                    <li><strong>Project Uplift:</strong> Focus: Specialist capability building. Actions: Competency diagnostics + personalized learning paths.
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Outcome: Reduce underperformance from 4% to ≤2% by 2026</li>
-                        </ul>
-                    </li>
-                </ol>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Proactive Projects (Future-Proofing)</h5>
-                <ol class="list-decimal list-inside ml-4 mb-4 text-gray-700" start="3">
-                    <li><strong>Project Apex:</strong> Focus: Technical leadership pipeline. Actions: Engineer-to-Expert accelerator program.
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Outcome: 50% of Expert roles filled internally by 2027</li>
-                        </ul>
-                    </li>
-                    <li><strong>Project Horizon:</strong> Focus: Digital fluency enterprise-wide. Actions: AI literacy certifications + automation labs.
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Outcome: 100% of engineers future-ready by 2026</li>
-                        </ul>
-                    </li>
-                    <li><strong>Project Synergy:</strong> Focus: Cross-level mentorship. Actions: Senior Manager-Engineer innovation pods.
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Outcome: 30% increase in cross-functional solutions</li>
-                        </ul>
-                    </li>
-                </ol>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">Conclusion: Calibrating Excellence, Accelerating Growth</h4>
-                <p class="font-inter text-gray-700 mb-4">Our 2024 performance confirms our technical prowess while revealing opportunities to strengthen leadership calibration and specialist development. By implementing these targeted initiatives, we will transform our solid foundation into sustainable competitive advantage, positioning us as the Middle East's telecom innovator of choice.</p>
-                <p class="font-inter text-gray-600 text-sm">Benchmark Sources: PwC Middle East Talent Trends 2024, STC Performance Report, Etisalat Leadership Study</p>
+            <h2 class="font-montserrat text-3xl md:text-4xl font-bold text-[#0404cc] mb-8 text-center">Performance by Job Level</h2>
+            <div class="chart-container">
+                <canvas id="jobLevelsChart"></canvas>
             </div>
         </section>
 
@@ -745,188 +492,9 @@
             <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300 mb-8">
                 &larr; Back to Home
             </button>
-            <h2 class="font-montserrat text-3xl md:text-4xl font-bold text-[#0404cc] mb-8 text-center">Career Level and Occupational Track: Expanded Organizational Analysis</h2>
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Elevating Talent Excellence</h3>
-                <p class="font-inter text-gray-700 mb-4">2024 demonstrated remarkable resilience across our workforce, with 97% of employees meeting or exceeding expectations. However, critical calibration gaps in leadership ratings and occupational track alignment present opportunities to strengthen our performance ecosystem. Key highlights:</p>
-                <ul class="list-disc list-inside ml-4 mb-4 text-gray-700">
-                    <li>Operational Stability: Strong core performance (67% "Meets Expectations")</li>
-                    <li>Leadership Pipeline Risks: Significant rating inflation at senior levels</li>
-                    <li>Untapped Potential: High-performing ICs (7% "Outstanding") ready for accelerated development</li>
-                </ul>
-                <p class="font-inter text-gray-700 mb-4">Benchmarked against Middle East telecom peers (Etisalat, STC, du) using S&P Global Telecom HR Survey 2024</p>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">2. Findings & Explanations: Career Level & Occupational Track Analysis</h4>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Table 1: Performance Distribution by Career Level vs. Telecom Benchmarks</h5>
-                <div class="overflow-x-auto mb-4">
-                    <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-sm">
-                        <thead>
-                            <tr>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Career Level</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Avg Score</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Telecom Benchmark</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">High Performers</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Telecom Benchmark</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Variance</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Business Leadership</td><td class="py-2 px-4 border-b text-sm text-gray-600">4.8</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.7–4.0</td><td class="py-2 px-4 border-b text-sm text-gray-600">100%</td><td class="py-2 px-4 border-b text-sm text-gray-600">15–25%</td><td class="py-2 px-4 border-b text-sm text-gray-600">Severe Inflation</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Management</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.9</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.5–3.7</td><td class="py-2 px-4 border-b text-sm text-gray-600">67%</td><td class="py-2 px-4 border-b text-sm text-gray-600">25–35%</td><td class="py-2 px-4 border-b text-sm text-gray-600">Overrating</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Supervisory</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.6</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.4–3.6</td><td class="py-2 px-4 border-b text-sm text-gray-600">38%</td><td class="py-2 px-4 border-b text-sm text-gray-600">20–30%</td><td class="py-2 px-4 border-b text-sm text-gray-600">Alignment</td></tr>
-                            <tr><td class="py-2 px-4 text-sm text-gray-600">Entry/Intermediate/Support</td><td class="py-2 px-4 text-sm text-gray-600">3.4</td><td class="py-2 px-4 text-sm text-gray-600">3.3–3.5</td><td class="py-2 px-4 text-sm text-gray-600">10–16%</td><td class="py-2 px-4 text-sm text-gray-600">10–20%</td><td class="py-2 px-4 text-sm text-gray-600">Capability Gaps</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Table 2: Occupational Track Performance Disparity</h5>
-                <div class="overflow-x-auto mb-4">
-                    <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-sm">
-                        <thead>
-                            <tr>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Metric</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Individual Contributor</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Managerial Track</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Telecom Benchmark</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Risk/Opportunity</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Avg Score</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.49</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.62</td><td class="py-2 px-4 border-b text-sm text-gray-600">IC: 3.4–3.5, Mgmt.: 3.5–3.6</td><td class="py-2 px-4 border-b text-sm text-gray-600">Managerial Inflation</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">High Performers</td><td class="py-2 px-4 border-b text-sm text-gray-600">27%</td><td class="py-2 px-4 border-b text-sm text-gray-600">51%</td><td class="py-2 px-4 border-b text-sm text-gray-600">IC: 20–25%, Mgmt.: 30–35%</td><td class="py-2 px-4 border-b text-sm text-gray-600">Reward Misalignment</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Underperformers</td><td class="py-2 px-4 border-b text-sm text-gray-600">3%</td><td class="py-2 px-4 border-b text-sm text-gray-600">5%</td><td class="py-2 px-4 border-b text-sm text-gray-600">Mgmt.: 1–2%</td><td class="py-2 px-4 border-b text-sm text-gray-600">Leadership Effectiveness</td></tr>
-                            <tr><td class="py-2 px-4 text-sm text-gray-600">"Meets Expectations"</td><td class="py-2 px-4 text-sm text-gray-600">71%</td><td class="py-2 px-4 text-sm text-gray-600">45%</td><td class="py-2 px-4 text-sm text-gray-600">Mgmt.: 50–60%</td><td class="py-2 px-4 text-sm text-gray-600">🔍 Capability Gap</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">Key Trends & Explanations</h4>
-                <ol class="list-decimal list-inside ml-4 mb-4 text-gray-700">
-                    <li><strong>Leadership Rating Anomaly:</strong>
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Business Leadership: 100% "Outstanding" vs. 15–25% benchmark</li>
-                            <li>Root Cause: "Halo effect," fear of executive attrition, weak calibration</li>
-                            <li>Benchmark Context: STC caps executive "Outstanding" at 20% (2023 Annual Report)</li>
-                        </ul>
-                    </li>
-                    <li><strong>Managerial Over-Rating:</strong>
-                        <ul class="list-disc list-inside ml-4">
-                            <li>51% high performers vs. 30–35% norm</li>
-                            <li>Drivers: Retention pressures, individual-output focused KPIs</li>
-                            <li>Industry Parallel: Etisalat links 50% of managerial ratings to team development metrics</li>
-                        </ul>
-                    </li>
-                    <li><strong>IC-Manager Imbalance:</strong>
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Managers have 2.5x ICs' underperformance rate (5% vs 2%)</li>
-                            <li>Compliance Risk: Pay equity exposure when ICs deliver similar outcomes</li>
-                        </ul>
-                    </li>
-                </ol>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">3. Strategic Insights</h4>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Progress Celebrations</h5>
-                <ul class="list-disc list-inside ml-4 mb-4 text-gray-700">
-                    <li>Supervisory Excellence: Ideal bell curve distribution (60% Meets, 38% High Performers) – a model for calibration</li>
-                    <li>Early-Talent Strength: 8% "Outstanding" at Entry Level signals robust recruitment</li>
-                    <li>Operational Backbone: 71% of ICs consistently meet expectations – critical for service stability</li>
-                </ul>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Growth Catalysts</h5>
-                <ul class="list-disc list-inside ml-4 mb-4 text-gray-700">
-                    <li>High-Potential ICs: 27% exceed expectations represent untapped leadership pipeline</li>
-                    <li>Managerial Recalibration: Aligning ratings to benchmarks could free 15–20% of reward budgets</li>
-                    <li>Capability Building: Addressing Support & Service underperformance could improve customer NPS by 10–15%</li>
-                </ul>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">4. Risks & Challenges</h4>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Risk Matrix: Impact vs. Urgency</h5>
-                <div class="overflow-x-auto mb-4">
-                    <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-sm">
-                        <thead>
-                            <tr>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Risk</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Impact</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Urgency</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Mitigation Window</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Leadership Credibility Crisis</td><td class="py-2 px-4 border-b text-sm text-gray-600">High 5</td><td class="py-2 px-4 border-b text-sm text-gray-600">Immediate</td><td class="py-2 px-4 border-b text-sm text-gray-600">Q3 2025 Calibration</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Managerial Reward Misallocation</td><td class="py-2 px-4 border-b text-sm text-gray-600">High 4</td><td class="py-2 px-4 border-b text-sm text-gray-600">Short-term</td><td class="py-2 px-4 border-b text-sm text-gray-600">Q4 2025 KPI Redesign</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">IC Retention Risk</td><td class="py-2 px-4 border-b text-sm text-gray-600">Med 3</td><td class="py-2 px-4 border-b text-sm text-gray-600">Medium-term</td><td class="py-2 px-4 border-b text-sm text-gray-600">2026 Dual-Career Path Launch</td></tr>
-                            <tr><td class="py-2 px-4 text-sm text-gray-600">Support Function Capability Gaps</td><td class="py-2 px-4 text-sm text-gray-600">Med 3</td><td class="py-2 px-4 text-sm text-gray-600">Ongoing</td><td class="py-2 px-4 text-sm text-gray-600">Q1 2026 Upskilling</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Business Impact Analysis</h5>
-                <ul class="list-disc list-inside ml-4 mb-4 text-gray-700">
-                    <li>Unaddressed leadership inflation could increase employee survey distrust scores by 30%</li>
-                    <li>Managerial underperformance (5%) risks $2.3M in lost productivity (based on PwC ME estimates)</li>
-                    <li>IC reward disparity may trigger 15–20% turnover in critical technical roles</li>
-                </ul>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">5. Recommendations</h4>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Action Roadmap</h5>
-                <div class="overflow-x-auto mb-4">
-                    <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-sm">
-                        <thead>
-                            <tr>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Focus Area</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Short-Term (Q3-Q4 2025)</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Long-Term (2026+)</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">KPI Impact</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Leadership Calibration</td><td class="py-2 px-4 border-b text-sm text-gray-600">Executive rating criteria redesign</td><td class="py-2 px-4 border-b text-sm text-gray-600">Independent review panel</td><td class="py-2 px-4 border-b text-sm text-gray-600">Reduce "Outstanding" to ≤25%</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Technical Rewards</td><td class="py-2 px-4 border-b text-sm text-gray-600">Spot awards for Engineer excellence</td><td class="py-2 px-4 border-b text-sm text-gray-600">Dual-career technical ladder</td><td class="py-2 px-4 border-b text-sm text-gray-600">Increase retention by 20%</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Specialist Development</td><td class="py-2 px-4 border-b text-sm text-gray-600">Skills diagnostics + micro-credentials</td><td class="py-2 px-4 border-b text-sm text-gray-600">Apprenticeship programs</td><td class="py-2 px-4 border-b text-sm text-gray-600">Reduce underperformance by 50%</td></tr>
-                            <tr><td class="py-2 px-4 text-sm text-gray-600">Enterprise Calibration</td><td class="py-2 px-4 text-sm text-gray-600">Level-specific rating workshops</td><td class="py-2 px-4 text-sm text-gray-600">AI-driven calibration tools</td><td class="py-2 px-4 text-sm text-gray-600">Achieve 90% benchmark alignment</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Feasibility Assessment</h5>
-                <ul class="list-disc list-inside ml-4 mb-4 text-gray-700">
-                    <li>Quick Win: Technical spot awards (utilizes existing reward infrastructure)</li>
-                    <li>High Impact: Executive KPI redesign (requires board approval but high ROI)</li>
-                </ul>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">6. HR Lens – Strategic Projects</h4>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Remedial Projects (Address Systemic Gaps)</h5>
-                <ol class="list-decimal list-inside ml-4 mb-4 text-gray-700">
-                    <li><strong>Project Anchor:</strong> Focus: Leadership calibration overhaul. Actions: Blind-rating workshops, business-impact linked criteria.
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Outcome: Achieve benchmark-aligned distribution by Q2 2026</li>
-                        </ul>
-                    </li>
-                    <li><strong>Project Equilibrium:</strong> Focus: Managerial track realignment. Actions: Transition operational managers to IC track, team-development KPIs.
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Outcome: 90% of managerial ratings reflect true leadership impact</li>
-                        </ul>
-                    </li>
-                </ol>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Proactive Projects (Future-Proof Talent)</h5>
-                <ol class="list-decimal list-inside ml-4 mb-4 text-gray-700" start="3">
-                    <li><strong>Project Apex:</strong> Focus: IC leadership pipeline. Actions: Technical mastery pathways, IC-to-manager transition labs.
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Outcome: 40% of leadership roles filled internally from IC track by 2027</li>
-                        </ul>
-                    </li>
-                    <li><strong>Project Foundation:</strong> Focus: Early-career digital capability. Actions: AI fluency micro-credentials, automation apprenticeships.
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Outcome: 100% of entry-level tech-ready by 2026</li>
-                        </ul>
-                    </li>
-                    <li><strong>Project Synergy:</strong> Focus: Cross-track mobility. Actions: Skills marketplaces, rotational programs.
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Outcome: 30% reduction in occupational track silos</li>
-                        </ul>
-                    </li>
-                </ol>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">Conclusion: Building a Calibrated, Future-Ready Workforce</h4>
-                <p class="font-inter text-gray-700 mb-4">Our 2024 performance data reveals both the depth of our talent foundation and critical opportunities to strengthen calibration, rebalance rewards, and future-proof careers. By addressing leadership rating credibility, unlocking IC potential, and redefining managerial excellence, we will transform insights into sustainable competitive advantage.</p>
-                <p class="font-inter text-gray-600 text-sm">Benchmark Sources: S&P Global Telecom HR Survey 2024, Etisalat Leadership Framework, STC Performance Benchmarking</p>
+            <h2 class="font-montserrat text-3xl md:text-4xl font-bold text-[#0404cc] mb-8 text-center">Career Level & Occupational Track Performance</h2>
+            <div class="chart-container">
+                <canvas id="careerOccupationalChart"></canvas>
             </div>
         </section>
 
@@ -935,425 +503,47 @@
             <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300 mb-8">
                 &larr; Back to Home
             </button>
-            <h2 class="font-montserrat text-3xl md:text-4xl font-bold text-[#0404cc] mb-8 text-center">Generational Excellence & Future Readiness: Multidimensional Performance Analysis</h2>
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Critical opportunities emerged to optimize generational strengths, recalibrate leadership ratings, and align talent strategies with digital transformation. Key highlights:</h3>
-                <ul class="list-disc list-inside ml-4 mb-4 text-gray-700">
-                    <li>Generational Balance: Millennials/Gen X drive core operations (63–70% "Meets"), Gen Z excels in digital roles</li>
-                    <li>Technical Prowess: IT/Engineering outperform benchmarks by 15–20%</li>
-                    <li>Calibration Imperative: Address rating inflation at senior levels and managerial tracks</li>
-                    <li>Generational Opportunity: Leverage Gen Z’s digital fluency and Gen X’s stability for 5G leadership</li>
-                </ul>
-                <p class="font-inter text-gray-700 mb-4">Benchmarked against Etisalat, STC, and Ooredoo per PwC Middle East Talent Report 2024</p>
-                <p class="font-inter text-gray-700 mb-4">Benchmark Sources: PwC Middle East Generational Trends 2024, STC Leadership Study, TM Forum Calibration Standards</p>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">Findings & Explanations: Multidimensional Performance Analysis</h4>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Table 1: Performance Distribution by Generation vs. Telecom Benchmarks</h5>
-                <div class="overflow-x-auto mb-4">
-                    <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-sm">
-                        <thead>
-                            <tr>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Generation</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Avg Score</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">High Performers</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Underperformers</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Telecom Benchmark</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Key Insight</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Gen Z</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.49</td><td class="py-2 px-4 border-b text-sm text-gray-600">30%</td><td class="py-2 px-4 border-b text-sm text-gray-600">0%</td><td class="py-2 px-4 border-b text-sm text-gray-600">20–25%</td><td class="py-2 px-4 border-b text-sm text-gray-600">Digital-native strength; ideal for CX/AI roles</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Millennials</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.54</td><td class="py-2 px-4 border-b text-sm text-gray-600">33%</td><td class="py-2 px-4 border-b text-sm text-gray-600">4%</td><td class="py-2 px-4 border-b text-sm text-gray-600">25–30%</td><td class="py-2 px-4 border-b text-sm text-gray-600">Polarization: Reskill underperforming 4%</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Gen X</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.48</td><td class="py-2 px-4 border-b text-sm text-gray-600">27%</td><td class="py-2 px-4 border-b text-sm text-gray-600">3%</td><td class="py-2 px-4 border-b text-sm text-gray-600">20–25%</td><td class="py-2 px-4 border-b text-sm text-gray-600">Critical for 5G/network stability</td></tr>
-                            <tr><td class="py-2 px-4 text-sm text-gray-600">Baby Boomers</td><td class="py-2 px-4 text-sm text-gray-600">3</td><td class="py-2 px-4 text-sm text-gray-600">0%</td><td class="py-2 px-4 text-sm text-gray-600">0%</td><td class="py-2 px-4 text-sm text-gray-600">7–12%</td><td class="py-2 px-4 text-sm text-gray-600">Legacy skill misalignment; knowledge transfer urgency</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Table 2: Career Level Disparities</h5>
-                <div class="overflow-x-auto mb-4">
-                    <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-sm">
-                        <thead>
-                            <tr>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Career Level</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Avg Score</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">High Performers</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Benchmark</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Variance</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Business Leadership</td><td class="py-2 px-4 border-b text-sm text-gray-600">4.8</td><td class="py-2 px-4 border-b text-sm text-gray-600">100%</td><td class="py-2 px-4 border-b text-sm text-gray-600">15–25%</td><td class="py-2 px-4 border-b text-sm text-gray-600">400% inflation</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Management</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.9</td><td class="py-2 px-4 border-b text-sm text-gray-600">67%</td><td class="py-2 px-4 border-b text-sm text-gray-600">25–35%</td><td class="py-2 px-4 border-b text-sm text-gray-600">91% overrate</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Supervisory</td><td class="py-2 px-4 border-b text-sm text-gray-600">3.6</td><td class="py-2 px-4 border-b text-sm text-gray-600">38%</td><td class="py-2 px-4 border-b text-sm text-gray-600">20–30%</td><td class="py-2 px-4 border-b text-sm text-gray-600">Aligned</td></tr>
-                            <tr><td class="py-2 px-4 text-sm text-gray-600">Entry/Support</td><td class="py-2 px-4 text-sm text-gray-600">3.4</td><td class="py-2 px-4 text-sm text-gray-600">10–16%</td><td class="py-2 px-4 text-sm text-gray-600">10–20%</td><td class="py-2 px-4 text-sm text-gray-600">Capability gap</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Table 3: Occupational Track Imbalance</h5>
-                <div class="overflow-x-auto mb-4">
-                    <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-sm">
-                        <thead>
-                            <tr>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Metric</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Individual Contributor</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Managerial Track</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Benchmark</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Risk</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">High Performers</td><td class="py-2 px-4 border-b text-sm text-gray-600">27%</td><td class="py-2 px-4 border-b text-sm text-gray-600">51%</td><td class="py-2 px-4 border-b text-sm text-gray-600">IC: 20–25%, Mgmt.: 30–35%</td><td class="py-2 px-4 border-b text-sm text-gray-600">❗ Reward misallocation</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Underperformers</td><td class="py-2 px-4 border-b text-sm text-gray-600">3%</td><td class="py-2 px-4 border-b text-sm text-gray-600">5%</td><td class="py-2 px-4 border-b text-sm text-gray-600">Mgmt.: 1–2%</td><td class="py-2 px-4 border-b text-sm text-gray-600">❗ Leadership crisis</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">Critical Trends Explained</h4>
-                <ol class="list-decimal list-inside ml-4 mb-4 text-gray-700">
-                    <li><strong>Generational Value Gaps:</strong>
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Baby Boomers: Undervalued legacy expertise (fiber/copper); KPI misalignment with digital metrics</li>
-                            <li>Gen X: Highest "Outstanding" rate (8%) – anchor for mentorship programs</li>
-                            <li>Gen Z: 24% "Exceeds" in tech roles – leverage for automation initiatives</li>
-                        </ul>
-                    </li>
-                    <li><strong>Leadership Calibration Failure:</strong>
-                        <ul class="list-disc list-inside ml-4">
-                            <li>100% "Outstanding" for Business Leadership vs. 15–25% benchmark</li>
-                            <li>Root Cause: "Halo effect," fear of executive attrition, weak calibration panels (e.g., Khalid’s outlier case)</li>
-                            <li>Industry Context: STC caps executive top ratings at 20%</li>
-                        </ul>
-                    </li>
-                    <li><strong>Managerial Over-Rating Epidemic:</strong>
-                        <ul class="list-disc list-inside ml-4">
-                            <li>51% high performers vs. 35% norm</li>
-                            <li>Driver: 45% of managers rated "Meets" – delivering basics without excelling</li>
-                            <li>Compliance Risk: Pay equity exposure when ICs deliver comparable outcomes</li>
-                        </ul>
-                    </li>
-                </ol>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">3. Strategic Insights</h4>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Core Strengths</h5>
-                <ul class="list-disc list-inside ml-4 mb-4 text-gray-700">
-                    <li>Generational Synergy: Gen X operational stability (70% "Meets") + Gen Z digital innovation (24% "Exceeds")</li>
-                    <li>Technical Backbone: Engineering roles (avg 3.6) exceed benchmarks by 12%</li>
-                    <li>Leadership Bench: Senior Managers (76% high performers) ready for expanded roles</li>
-                </ul>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Growth Catalysts</h5>
-                <ul class="list-disc list-inside ml-4 mb-4 text-gray-700">
-                    <li>Untapped IC Potential: 27% high-performing ICs represent latent leadership pipeline</li>
-                    <li>Gen Z Digital Leverage: Reshape customer experience through AI/digital-native strengths</li>
-                    <li>Calibration Dividend: Aligning ratings to benchmarks could redirect 20% of reward budgets to true top talent</li>
-                </ul>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">4. Risks & Challenges</h4>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Risk Matrix: Impact vs. Urgency</h5>
-                <div class="overflow-x-auto mb-4">
-                    <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-sm">
-                        <thead>
-                            <tr>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Risk</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Impact</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Urgency</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Mitigation Focus</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Leadership Credibility Crisis</td><td class="py-2 px-4 border-b text-sm text-gray-600">5</td><td class="py-2 px-4 border-b text-sm text-gray-600">Immediate</td><td class="py-2 px-4 border-b text-sm text-gray-600">Executive KPI redesign</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Managerial Reward Drain</td><td class="py-2 px-4 border-b text-sm text-gray-600">4</td><td class="py-2 px-4 border-b text-sm text-gray-600">Short-term</td><td class="py-2 px-4 border-b text-sm text-gray-600">Team-outcome KPIs</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Baby Boomer Knowledge Loss</td><td class="py-2 px-4 border-b text-sm text-gray-600">4</td><td class="py-2 px-4 border-b text-sm text-gray-600">Medium-term</td><td class="py-2 px-4 border-b text-sm text-gray-600">Legacy skill capture</td></tr>
-                            <tr><td class="py-2 px-4 text-sm text-gray-600">Gen Z Disengagement</td><td class="py-2 px-4 text-sm text-gray-600">3</td><td class="py-2 px-4 text-sm text-gray-600">Ongoing</td><td class="py-2 px-4 text-sm text-gray-600">Micro-learning platforms</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Business Impact Analysis</h5>
-                <ul class="list-disc list-inside ml-4 mb-4 text-gray-700">
-                    <li>Uncalibrated leadership ratings could increase employee distrust by 30% (Gallup correlation)</li>
-                    <li>Managerial underperformance (5%) risks $3.1M productivity loss (PwC ME model)</li>
-                    <li>Baby Boomer retirement without knowledge transfer may increase network downtime by 15%</li>
-                </ul>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">5. Recommendations</h4>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Action Roadmap</h5>
-                <div class="overflow-x-auto mb-4">
-                    <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-sm">
-                        <thead>
-                            <tr>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Focus Area</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Short-Term (2025)</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Long-Term (2026+)</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Business Outcome</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Generational Strategy</td><td class="py-2 px-4 border-b text-sm text-gray-600">Gen Z/Millennial digital accelerators</td><td class="py-2 px-4 border-b text-sm text-gray-600">Enterprise AI fluency program</td><td class="py-2 px-4 border-b text-sm text-gray-600">90% Gen Z in innovation roles</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Leadership Calibration</td><td class="py-2 px-4 border-b text-sm text-gray-600">Blind-rating executive panels</td><td class="py-2 px-4 border-b text-sm text-gray-600">360° impact-linked scorecards</td><td class="py-2 px-4 border-b text-sm text-gray-600">Reduce inflated ratings by 60%</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Managerial Realignment</td><td class="py-2 px-4 border-b text-sm text-gray-600">50% KPI weight to team outcomes</td><td class="py-2 px-4 border-b text-sm text-gray-600">Dual-career technical ladder</td><td class="py-2 px-4 border-b text-sm text-gray-600">Cut underperformance to 2%</td></tr>
-                            <tr><td class="py-2 px-4 border-b text-sm text-gray-600">Knowledge Transfer</td><td class="py-2 px-4 border-b text-sm text-gray-600">Baby Boomer legacy masterclasses</td><td class="py-2 px-4 border-b text-sm text-gray-600">Digital apprenticeship programs</td><td class="py-2 px-4 border-b text-sm text-gray-600">Capture 100% critical knowledge</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Feasibility Assessment</h5>
-                <ul class="list-disc list-inside ml-4 mb-4 text-gray-700">
-                    <li>Quick Win: Gen Z digital accelerators (utilizes existing L&D infrastructure)</li>
-                    <li>High Impact: Executive blind-rating panels (requires board buy-in but restores trust)</li>
-                </ul>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">6. HR Lens – Strategic Projects</h4>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Remedial Projects (Close Critical Gaps)</h5>
-                <ol class="list-decimal list-inside ml-4 mb-4 text-gray-700">
-                    <li><strong>Project Anchor:</strong> Focus: Leadership calibration overhaul. Actions: Strategy-linked KPIs, third-party audits for executives.
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Outcome: Achieve benchmark-aligned ratings by Q4 2025</li>
-                        </ul>
-                    </li>
-                    <li><strong>Project Balance:</strong> Focus: Managerial track correction. Actions: Transition operational managers to IC track, team-development KPIs.
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Outcome: 85% of managerial ratings reflect true leadership impact</li>
-                        </ul>
-                    </li>
-                    <li><strong>Project Bridge:</strong> Focus: Baby Boomer knowledge retention. Actions: "Legacy Networks" masterclass series + documentation sprint.
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Outcome: Capture 100% critical expertise by Q2 2026</li>
-                        </ul>
-                    </li>
-                </ol>
-                <h5 class="font-montserrat text-lg font-bold text-[#0404cc] mb-2">Proactive Projects (Future-Proofing)</h5>
-                <ol class="list-decimal list-inside ml-4 mb-4 text-gray-700" start="4">
-                    <li><strong>Project Nexus:</strong> Focus: Generational talent blending. Actions: Gen X-Gen Z innovation pods for 5G/digital solutions.
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Outcome: 30% faster product development cycles</li>
-                        </ul>
-                    </li>
-                    <li><strong>Project Apex:</strong> Focus: IC leadership pipeline. Actions: Technical mastery pathways, IC-to-manager transition labs.
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Outcome: 40% of leadership roles filled from IC track by 2027</li>
-                        </ul>
-                    </li>
-                    <li><strong>Project Catalyst:</strong> Focus: Gen Z digital immersion. Actions: AI fluency micro-credentials, automation apprenticeships.
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Outcome: 100% of Gen Z tech-certified by 2026</li>
-                        </ul>
-                    </li>
-                    <li><strong>Project Horizon:</strong> Focus: Cross-generational mentorship. Actions: Reverse mentoring (Gen Z executives), skills marketplaces.
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Outcome: 50% reduction in generational capability gaps</li>
-                        </ul>
-                    </li>
-                </ol>
-
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">Conclusion: Harnessing Generational Synergy</h4>
-                <p class="font-inter text-gray-700 mb-4">Our 2024 performance confirms that generational diversity is our competitive advantage – from Gen X’s operational mastery to Gen Z’s digital prowess. By recalibrating leadership recognition, realigning managerial expectations, and strategically transferring knowledge, we will transform today’s strengths into sustainable market leadership.</p>
-            </div>
-        </section>
-
-        <!-- Preserve old pages for now, as their content structure was not explicitly asked to be removed -->
-        <!-- Executive Summary Page -->
-        <section id="executive-summary-page" class="page-section hidden container mx-auto px-6 py-12 md:py-16">
-            <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300 mb-8">
-                &larr; Back to Home
-            </button>
-            <h2 class="font-montserrat text-3xl md:text-4xl font-bold text-[#0404cc] mb-8 text-center">Executive Summary</h2>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Methodology & Definitions</h3>
-                <!-- Content for Methodology & Definitions will go here -->
-            </div>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Key Highlights (2022–2024)</h3>
-                <!-- Content for Key Highlights will go here -->
-            </div>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Notable Achievements</h3>
-                <!-- Content for Notable Achievements will go here -->
-            </div>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Performance Trends at a Glance</h3>
-                <!-- Content for Performance Trends at a Glance will go here -->
-            </div>
-        </section>
-
-        <!-- Performance Metrics Page -->
-        <section id="performance-metrics-page" class="page-section hidden container mx-auto px-6 py-12 md:py-16">
-            <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300 mb-8">
-                &larr; Back to Home
-            </button>
-            <h2 class="font-montserrat text-3xl md:text-4xl font-bold text-[#0404cc] mb-8 text-center">Performance Metrics Overview</h2>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Performance Distribution by Grade (2022–2024)</h3>
-                <!-- Content for Performance Distribution by Grade will go here -->
-            </div>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Appeal insights (percentage from 2022- 2024)</h3>
-                <!-- Content for Appeal insights will go here -->
-            </div>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Trend Snapshot (Infographic)</h3>
-                <!-- Content for Trend Snapshot (Infographic) will go here -->
-            </div>
-        </section>
-
-        <!-- Organizational Insights Page -->
-        <section id="organizational-insights-page" class="page-section hidden container mx-auto px-6 py-12 md:py-16">
-            <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300 mb-8">
-                &larr; Back to Home
-            </button>
-            <h2 class="font-montserrat text-3xl md:text-4xl font-bold text-[#0404cc] mb-8 text-center">Organizational Insights</h2>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Average Score (Division, level)</h3>
-                <!-- Content for Average Score will go here -->
-            </div>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Grade Distribution (Division, level)</h3>
-                <!-- Content for Grade Distribution will go here -->
-            </div>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Consistency Rate</h3>
-                <!-- Content for Consistency Rate will go here -->
-            </div>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Top Performing Divisions</h3>
-                <!-- Content for Top Performing Divisions will go here -->
-            </div>
-        </section>
-
-        <!-- Career & Talent Development Page -->
-        <section id="talent-development-page" class="page-section hidden container mx-auto px-6 py-12 md:py-16">
-            <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300 mb-8">
-                &larr; Back to Home
-            </button>
-            <h2 class="font-montserrat text-3xl md:text-4xl font-bold text-[#0404cc] mb-8 text-center">Career & Talent Development</h2>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">New Joiners v. Seniors Performance</h3>
-                <!-- Content for New Joiners v. Seniors Performance will go here -->
-            </div>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Leadership vs. Individual Contributor Performance</h3>
-                <!-- Content for Leadership vs. Individual Contributor Performance will go here -->
-            </div>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Entry vs. Intermediate vs. Managerial Level Performance</h3>
-                <!-- Content for Entry vs. Intermediate vs. Managerial Level Performance will go here -->
-            </div>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Core function vs. Support function</h3>
-                <!-- Content for Core function vs. Support function will go here -->
-            </div>
-        </section>
-
-        <!-- Diversity & Inclusion Analytics Page -->
-        <section id="diversity-inclusion-page" class="page-section hidden container mx-auto px-6 py-12 md:py-16">
-            <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300 mb-8">
-                &larr; Back to Home
-            </button>
-            <h2 class="font-montserrat text-3xl md:text-4xl font-bold text-[#0404cc] mb-8 text-center">Diversity & Inclusion Analytics</h2>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Average Score by gender and generations</h3>
-                <!-- Content for Average Score by gender and generations will go here -->
-            </div>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Grade Distribution by gender and generations</h3>
-                <!-- Content for Grade Distribution by gender and generations will go here -->
-            </div>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Consistency Rate of gender and generations</h3>
-                <!-- Content for Consistency Rate of gender and generations will go here -->
-            </div>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Top Performing by gender and generations</h3>
-                <!-- Content for Top Performing by gender and generations will go here -->
-            </div>
-        </section>
-
-        <!-- Correlation Insights Page -->
-        <section id="correlation-insights-page" class="page-section hidden container mx-auto px-6 py-12 md:py-16">
-            <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300 mb-8">
-                &larr; Back to Home
-            </button>
-            <h2 class="font-montserrat text-3xl md:text-4xl font-bold text-[#0404cc] mb-8 text-center">Correlation Insights</h2>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Performance ↔ Job Level</h3>
-                <!-- Content for Performance ↔ Job Level will go here -->
-            </div>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Job Level ↔ Grade Consistency</h3>
-                <!-- Content for Job Level ↔ Grade Consistency will go here -->
-            </div>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Age ↔ Performance</h3>
-                <!-- Content for Age ↔ Performance will go here -->
+            <h2 class="font-montserrat text-3xl md:text-4xl font-bold text-[#0404cc] mb-8 text-center">Generational Performance Insights</h2>
+            <div class="chart-container">
+                <canvas id="generationalChart"></canvas>
             </div>
         </section>
 
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-gray-100 text-gray-600 py-8 px-6 md:px-12 mt-12 border-t border-gray-200">
-        <div class="container mx-auto flex flex-col md:flex-row items-center justify-between">
-            <div class="mb-4 md:mb-0 text-center md:text-left">
-                <p>&copy; 2024 Sudani. All rights reserved.</p>
-            </div>
-            <nav>
-                <ul class="flex flex-wrap justify-center space-x-4">
-                    <li><a href="#" class="text-gray-600 hover:text-[#0404cc] transition-colors duration-300">Help</a></li>
-                    <li><a href="#" class="text-gray-600 hover:text-[#0404cc] transition-colors duration-300">Contact Us</a></li>
-                    <li><a href="#" class="text-gray-600 hover:text-[#0404cc] transition-colors duration-300">Privacy Policy</a></li>
-                    <li><a href="#" class="text-gray-600 hover:text-[#0404cc] transition-colors duration-300">Terms of Service</a></li>
-                </ul>
-            </nav>
-        </div>
-    </footer>
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const cardLinks = document.querySelectorAll('.card-animation');
-            const homeHeroSection = document.getElementById('home-hero');
-            const homeCardsSection = document.getElementById('home-cards');
+            const mainContent = document.getElementById('main-content');
+            const allPageSections = document.querySelectorAll('.page-section');
+            const cardLinks = document.querySelectorAll('[data-target-page]');
             const backButtons = document.querySelectorAll('.back-button');
+
+            let charts = {}; // Object to store chart instances
 
             // Function to show a specific page and hide others
             const showPage = (pageId) => {
-                document.querySelectorAll('.page-section').forEach(section => {
-                    section.classList.add('hidden');
+                allPageSections.forEach(section => {
                     section.classList.remove('active');
+                    section.classList.add('hidden');
                 });
                 const targetPage = document.getElementById(pageId);
                 if (targetPage) {
                     targetPage.classList.remove('hidden');
                     targetPage.classList.add('active');
-                    window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top of the new page
+                    // Render chart if it's a chart page
+                    if (pageId === 'dashboard-overview-page') renderDashboardOverviewChart(); // New chart render call
+                    if (pageId === 'divisions-page') renderDivisionsChart();
+                    if (pageId === 'job-levels-page') renderJobLevelsChart();
+                    if (pageId === 'career-occupational-page') renderCareerOccupationalChart();
+                    if (pageId === 'generational-excellence-page') renderGenerationalChart();
                 }
             };
 
-            // Event listeners for card clicks
-            cardLinks.forEach(card => {
-                card.addEventListener('click', (event) => {
-                    event.preventDefault(); // Prevent default link behavior
-                    const targetPageId = card.dataset.targetPage;
+            // Event listeners for dashboard cards
+            cardLinks.forEach(link => {
+                link.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    const targetPageId = link.dataset.targetPage;
                     showPage(targetPageId);
                 });
             });
@@ -1361,18 +551,418 @@
             // Event listeners for back buttons
             backButtons.forEach(button => {
                 button.addEventListener('click', () => {
-                    showPage('home-hero'); // Show hero
-                    homeCardsSection.classList.remove('hidden'); // Show cards
-                    homeCardsSection.classList.add('active');
+                    showPage('home-hero'); // Show hero section
+                    document.getElementById('home-cards').classList.remove('hidden'); // Show cards section
+                    document.getElementById('home-cards').classList.add('active');
                 });
             });
 
-            // Initially show home sections
-            showPage('home-hero');
-            homeCardsSection.classList.remove('hidden');
-            homeCardsSection.classList.add('active');
+            // --- Chart Rendering Functions ---
+
+            // Function to destroy existing chart if it exists
+            const destroyChart = (chartId) => {
+                if (charts[chartId]) {
+                    charts[chartId].destroy();
+                    delete charts[chartId];
+                }
+            };
+
+            // Common font settings for consistency
+            const commonFontSettings = {
+                titleSize: 18,
+                axisTitleSize: 16,
+                tickLabelSize: 14,
+                fontFamily: 'Inter'
+            };
+
+            // Render Dashboard Overview Chart (New)
+            const renderDashboardOverviewChart = () => {
+                destroyChart('dashboardOverviewChart'); // Destroy previous instance
+                const ctx = document.getElementById('dashboardOverviewChart').getContext('2d');
+                charts.dashboardOverviewChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Outstanding', 'Exceeds', 'Meets', 'Below Expectations'],
+                        datasets: [{
+                            label: 'Overall Performance Distribution (%)',
+                            data: [7, 22, 68, 2], // From Strategic Insights table
+                            backgroundColor: [
+                                '#0c9b2c', '#f7e815', '#0404cc', '#dc2626' /* red-600 for below expectations */
+                            ],
+                            borderColor: [
+                                '#0c9b2c', '#f7e815', '#0404cc', '#dc2626'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Overall Performance Rating Distribution',
+                                font: {
+                                    size: commonFontSettings.titleSize,
+                                    family: 'Montserrat'
+                                },
+                                color: '#0404cc'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += context.parsed.y + '%';
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                title: {
+                                    display: true,
+                                    text: 'Percentage (%)',
+                                    font: {
+                                        size: commonFontSettings.axisTitleSize,
+                                        family: commonFontSettings.fontFamily
+                                    }
+                                },
+                                ticks: {
+                                    font: {
+                                        size: commonFontSettings.tickLabelSize,
+                                        family: commonFontSettings.fontFamily
+                                    },
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Performance Category',
+                                    font: {
+                                        size: commonFontSettings.axisTitleSize,
+                                        family: commonFontSettings.fontFamily
+                                    }
+                                },
+                                ticks: {
+                                    font: {
+                                        size: commonFontSettings.tickLabelSize,
+                                        family: commonFontSettings.fontFamily
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            };
+
+            // Render Divisions Chart
+            const renderDivisionsChart = () => {
+                destroyChart('divisionsChart'); // Destroy previous instance
+                const ctx = document.getElementById('divisionsChart').getContext('2d');
+                charts.divisionsChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Sales', 'Marketing', 'Engineering', 'HR', 'Finance', 'Operations'],
+                        datasets: [{
+                            label: 'Average Performance Score',
+                            data: [3.8, 3.5, 4.1, 3.2, 3.6, 3.9],
+                            backgroundColor: [
+                                '#0404cc', '#0c9b2c', '#f7e815', '#0404cc', '#0c9b2c', '#f7e815'
+                            ],
+                            borderColor: [
+                                '#0404cc', '#0c9b2c', '#f7e815', '#0404cc', '#0c9b2c', '#f7e815'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Average Performance Score by Division',
+                                font: {
+                                    size: commonFontSettings.titleSize,
+                                    family: 'Montserrat'
+                                },
+                                color: '#0404cc'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 5,
+                                title: {
+                                    display: true,
+                                    text: 'Performance Score (1-5)',
+                                    font: {
+                                        size: commonFontSettings.axisTitleSize,
+                                        family: commonFontSettings.fontFamily
+                                    }
+                                },
+                                ticks: {
+                                    font: {
+                                        size: commonFontSettings.tickLabelSize,
+                                        family: commonFontSettings.fontFamily
+                                    }
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Division',
+                                    font: {
+                                        size: commonFontSettings.axisTitleSize,
+                                        family: commonFontSettings.fontFamily
+                                    }
+                                },
+                                ticks: {
+                                    font: {
+                                        size: commonFontSettings.tickLabelSize,
+                                        family: commonFontSettings.fontFamily
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            };
+
+            // Render Job Levels Chart
+            const renderJobLevelsChart = () => {
+                destroyChart('jobLevelsChart'); // Destroy previous instance
+                const ctx = document.getElementById('jobLevelsChart').getContext('2d');
+                charts.jobLevelsChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Entry Level', 'Associate', 'Senior', 'Manager', 'Director', 'Executive'],
+                        datasets: [{
+                            label: 'Performance Distribution',
+                            data: [10, 25, 30, 20, 10, 5], // Dummy percentages
+                            backgroundColor: [
+                                '#0404cc', '#0c9b2c', '#f7e815', '#0404cc', '#0c9b2c', '#f7e815'
+                            ],
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Performance Distribution by Job Level',
+                                font: {
+                                    size: commonFontSettings.titleSize,
+                                    family: 'Montserrat'
+                                },
+                                color: '#0404cc'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed !== null) {
+                                            label += context.parsed + '%';
+                                        }
+                                        return label;
+                                    }
+                                },
+                                titleFont: {
+                                    size: commonFontSettings.tickLabelSize, // For tooltip title
+                                    family: commonFontSettings.fontFamily
+                                },
+                                bodyFont: {
+                                    size: commonFontSettings.tickLabelSize, // For tooltip body
+                                    family: commonFontSettings.fontFamily
+                                }
+                            },
+                            legend: {
+                                labels: {
+                                    font: {
+                                        size: commonFontSettings.tickLabelSize, // For legend labels
+                                        family: commonFontSettings.fontFamily
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            };
+
+            // Render Career Level and Occupational Track Chart
+            const renderCareerOccupationalChart = () => {
+                destroyChart('careerOccupationalChart'); // Destroy previous instance
+                const ctx = document.getElementById('careerOccupationalChart').getContext('2d');
+                charts.careerOccupationalChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Individual Contributor', 'Team Lead', 'Specialist', 'Management', 'Executive Leadership'],
+                        datasets: [{
+                            label: 'Average Performance Rating',
+                            data: [3.7, 3.9, 4.0, 3.5, 4.2],
+                            backgroundColor: '#0404cc',
+                            borderColor: '#0404cc',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y', // Horizontal bar chart
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Average Performance by Career Level & Occupational Track',
+                                font: {
+                                    size: commonFontSettings.titleSize,
+                                    family: 'Montserrat'
+                                },
+                                color: '#0404cc'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                max: 5,
+                                title: {
+                                    display: true,
+                                    text: 'Performance Rating (1-5)',
+                                    font: {
+                                        size: commonFontSettings.axisTitleSize,
+                                        family: commonFontSettings.fontFamily
+                                    }
+                                },
+                                ticks: {
+                                    font: {
+                                        size: commonFontSettings.tickLabelSize,
+                                        family: commonFontSettings.fontFamily
+                                    }
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Career/Occupational Track',
+                                    font: {
+                                        size: commonFontSettings.axisTitleSize,
+                                        family: commonFontSettings.fontFamily
+                                    }
+                                },
+                                ticks: {
+                                    font: {
+                                        size: commonFontSettings.tickLabelSize,
+                                        family: commonFontSettings.fontFamily
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            };
+
+            // Render Generational Excellence & Future Readiness Chart
+            const renderGenerationalChart = () => {
+                destroyChart('generationalChart'); // Destroy previous instance
+                const ctx = document.getElementById('generationalChart').getContext('2d');
+                charts.generationalChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Gen Z', 'Millennials', 'Gen X', 'Baby Boomers'],
+                        datasets: [{
+                            label: 'Average Performance Score',
+                            data: [3.7, 4.0, 3.8, 3.5],
+                            borderColor: '#0404cc',
+                            backgroundColor: 'rgba(4, 4, 204, 0.2)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Future Readiness Index',
+                            data: [4.2, 3.9, 3.5, 3.0],
+                            borderColor: '#0c9b2c',
+                            backgroundColor: 'rgba(12, 155, 44, 0.2)',
+                            tension: 0.3,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Generational Performance & Future Readiness',
+                                font: {
+                                    size: commonFontSettings.titleSize,
+                                    family: 'Montserrat'
+                                },
+                                color: '#0404cc'
+                            },
+                            legend: {
+                                labels: {
+                                    font: {
+                                        size: commonFontSettings.tickLabelSize, // For legend labels
+                                        family: commonFontSettings.fontFamily
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 5,
+                                title: {
+                                    display: true,
+                                    text: 'Score (1-5)',
+                                    font: {
+                                        size: commonFontSettings.axisTitleSize,
+                                        family: commonFontSettings.fontFamily
+                                    }
+                                },
+                                ticks: {
+                                    font: {
+                                        size: commonFontSettings.tickLabelSize,
+                                        family: commonFontSettings.fontFamily
+                                    }
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Generation',
+                                    font: {
+                                        size: commonFontSettings.axisTitleSize,
+                                        family: commonFontSettings.fontFamily
+                                    }
+                                },
+                                ticks: {
+                                    font: {
+                                        size: commonFontSettings.tickLabelSize,
+                                        family: commonFontSettings.fontFamily
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            };
         });
     </script>
-
 </body>
 </html>
