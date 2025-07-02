@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Executive Performance Analytics</title>
-    <!-- Tailwind CSS CDN -->
+    <!-- Tailwind CSS CDN for utility-first styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Montserrat for headings, Inter for body -->
+    <!-- Google Fonts: Montserrat for headings, Inter for body text for clear typography -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Chart.js CDN for data visualization -->
+    <!-- Chart.js CDN for dynamic data visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Lucide Icons CDN for enhanced visual appeal -->
+    <!-- Lucide Icons CDN for modern, clean iconography -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* Custom styles for specific fonts */
+        /* Custom font declarations for consistent typography */
         .font-montserrat {
             font-family: 'Montserrat', sans-serif;
         }
@@ -21,13 +21,14 @@
             font-family: 'Inter', sans-serif;
         }
 
-        /* Custom animation for staggered card reveal */
+        /* CSS for staggered card reveal animation on the home page */
         .card-animation {
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInMoveUp 0.6s ease-out forwards;
+            opacity: 0; /* Start invisible */
+            transform: translateY(20px); /* Start slightly below final position */
+            animation: fadeInMoveUp 0.6s ease-out forwards; /* Apply animation */
         }
 
+        /* Keyframes for the fade-in and move-up animation */
         @keyframes fadeInMoveUp {
             from {
                 opacity: 0;
@@ -39,70 +40,98 @@
             }
         }
 
-        /* Staggered animation delays */
-        .card-0 { animation-delay: 0s; } /* Added for the new Dashboard card */
+        /* Staggered animation delays for each card to create a smooth entrance effect */
+        .card-0 { animation-delay: 0s; }
         .card-1 { animation-delay: 0.1s; }
         .card-2 { animation-delay: 0.2s; }
         .card-3 { animation-delay: 0.3s; }
         .card-4 { animation-delay: 0.4s; }
         .card-5 { animation-delay: 0.5s; }
         .card-6 { animation-delay: 0.6s; }
-        .card-7 { animation-delay: 0.7s; } /* New delay for the new card */
 
-        /* Custom background pattern for hero */
+        /* Custom background pattern for the hero banner, using SVG for scalability */
         .hero-pattern {
             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230404cc' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0 20v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 34v-4h-2v4H0v2h2v4h4v-2h-4v-2h4zm0 20v-4h-2v4H0v2h2v4h4v-2h-4v-2h4zM36 4v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 4v-4h-2v4H0v2h2v4h4v-2h-4V6h4z'%3E%3C/path%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
             background-size: 60px 60px;
         }
 
-        /* Hide all pages by default, show only the active one */
+        /* Styles for multi-page navigation: Hides inactive sections */
         .page-section {
             display: none;
         }
         .page-section.active {
-            display: block;
+            display: block; /* Shows the active page */
         }
 
-        /* Chart container styling for responsiveness */
+        /* Styling for chart containers to ensure responsiveness and visual appeal */
         .chart-container {
             width: 100%;
-            max-width: 900px; /* Original max-width for reference, overridden by Tailwind below */
+            max-width: 900px; /* Base max-width */
             margin: 0 auto;
             background-color: white;
-            border-radius: 0.75rem; /* rounded-xl */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
-            padding: 1.5rem; /* p-6 */
-            overflow-x: auto; /* Enable horizontal scrolling if chart is too wide */
+            border-radius: 0.75rem; /* Rounded corners */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Soft shadow */
+            padding: 1.5rem;
+            overflow-x: auto; /* Enables horizontal scrolling for wide charts on small screens */
         }
 
-        /* Responsive adjustments for chart container using Tailwind classes */
-        @media (min-width: 640px) { /* sm breakpoint */
+        /* Responsive adjustments for chart container max-width */
+        @media (min-width: 640px) { /* Small screens and up */
             .chart-container {
-                max-width: 640px; /* sm:max-w-xl */
+                max-width: 640px;
             }
         }
-        @media (min-width: 768px) { /* md breakpoint */
+        @media (min-width: 768px) { /* Medium screens and up */
             .chart-container {
-                max-width: 768px; /* md:max-w-2xl */
+                max-width: 768px;
             }
         }
-        @media (min-width: 1024px) { /* lg breakpoint */
+        @media (min-width: 1024px) { /* Large screens and up */
             .chart-container {
-                max-width: 1024px; /* lg:max-w-4xl */
+                max-width: 1024px;
             }
+        }
+
+        /* Keyframes for the subtle pulse animation */
+        @keyframes pulse-subtle {
+            0% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.05); opacity: 0.9; }
+            100% { transform: scale(1); opacity: 0.7; }
+        }
+
+        /* Keyframes for the data flow animation along SVG paths */
+        @keyframes dash-flow {
+            from {
+                stroke-dashoffset: 1000; /* Start offset, larger than path length */
+            }
+            to {
+                stroke-dashoffset: 0; /* End offset */
+            }
+        }
+
+        /* Apply pulse animation to circles */
+        .animate-pulse-subtle {
+            animation: pulse-subtle 2s infinite ease-in-out;
+        }
+
+        /* Apply data flow animation to paths */
+        .animate-dash-flow {
+            stroke-dasharray: 1000; /* Initial dash array, larger than path length */
+            stroke-dashoffset: 1000; /* Start off-screen */
+            animation: dash-flow 4s linear infinite; /* Animation duration and loop */
         }
     </style>
 </head>
 <body class="font-inter text-gray-800 bg-gray-50 antialiased">
 
-    <!-- Header -->
+    <!-- Header section: Contains logo and main title -->
     <header class="bg-white shadow-sm py-4 px-6 md:px-12 flex flex-col md:flex-row items-center justify-between z-10 relative">
-        <!-- Logo -->
+        <!-- Logo for branding -->
         <div class="flex-shrink-0 mb-4 md:mb-0">
             <span class="font-montserrat text-3xl font-bold text-[#0404cc]">Sudani</span>
         </div>
 
-        <!-- Page Title -->
+        <!-- Main page title -->
         <div class="flex-shrink-0 text-center md:text-right">
             <h1 class="font-montserrat text-2xl md:text-3xl font-bold text-[#0404cc]">
                 Employee Performance Analytics <span class="text-[#0c9b2c]">2024</span>
@@ -110,14 +139,14 @@
         </div>
     </header>
 
-    <!-- Main Content Area -->
+    <!-- Main content area, dynamically displays different sections -->
     <main id="main-content">
-        <!-- Hero Banner -->
+        <!-- Hero Banner: Visually engaging introduction to the dashboard -->
         <section id="home-hero" class="relative w-full h-96 bg-[#0404cc] overflow-hidden flex items-center justify-center text-white hero-pattern page-section active">
-            <!-- Abstract background illustration -->
+            <!-- Background gradient and blur for depth -->
             <div class="absolute inset-0 bg-gradient-to-br from-[#0404cc]/80 to-[#0404cc]/60 backdrop-blur-sm"></div>
+            <!-- Abstract SVG elements for visual interest and animation -->
             <div class="absolute inset-0 flex items-center justify-center opacity-70">
-                <!-- Abstract corporate silhouettes/data-flow SVG (placeholder) -->
                 <svg class="w-full h-full object-cover" viewBox="0 0 1000 300" preserveAspectRatio="xMidYMid slice">
                     <defs>
                         <linearGradient id="gradient1" x1="0%" y1="0%" y2="0%">
@@ -126,30 +155,18 @@
                             <stop offset="100%" stop-color="#0404cc" stop-opacity="0.2"/>
                         </linearGradient>
                     </defs>
-                    <path fill="url(#gradient1)" d="M0,150 Q125,50 250,150 T500,150 T750,150 T1000,150 V300 H0 Z" class="opacity-50"/>
-                    <circle cx="100" cy="150" r="20" fill="#f7e815" class="opacity-70 animate-pulse"/>
-                    <circle cx="300" cy="180" r="15" fill="#0c9b2c" class="opacity-70 animate-pulse" style="animation-delay: 0.2s;"/>
-                    <circle cx="500" cy="120" r="25" fill="#0404cc" class="opacity-70 animate-pulse" style="animation-delay: 0.4s;"/>
-                    <path d="M50,200 Q200,100 400,200 T700,150 T950,200" stroke="#f7e815" stroke-width="2" fill="none" class="opacity-50 animate-dash"/>
-                    <path d="M50,100 Q250,200 450,100 T750,250 T950,100" stroke="#0c9b2c" stroke-width="2" fill="none" class="opacity-50 animate-dash" style="animation-delay: 0.1s;"/>
-                    <style>
-                        .animate-pulse {
-                            animation: pulse 2s infinite alternate;
-                        }
-                        @keyframes pulse {
-                            from { transform: scale(1); opacity: 0.7; }
-                            to { transform: scale(1.1); opacity: 0.9; }
-                        }
-                        @keyframes dash {
-                            to {
-                                stroke-dashoffset: 0;
-                            }
-                        }
-                    </style>
+                    <!-- Circles with subtle pulsing animation -->
+                    <circle cx="100" cy="150" r="20" fill="#f7e815" class="opacity-70 animate-pulse-subtle"/>
+                    <circle cx="300" cy="180" r="15" fill="#0c9b2c" class="opacity-70 animate-pulse-subtle" style="animation-delay: 0.2s;"/>
+                    <circle cx="500" cy="120" r="25" fill="#0404cc" class="opacity-70 animate-pulse-subtle" style="animation-delay: 0.4s;"/>
+                    <!-- Paths with data flow animation -->
+                    <path d="M0,150 Q125,50 250,150 T500,150 T750,150 T1000,150 V300 H0 Z" fill="url(#gradient1)" class="opacity-50"/>
+                    <path d="M50,200 Q200,100 400,200 T700,150 T950,200" stroke="#f7e815" stroke-width="2" fill="none" class="opacity-50 animate-dash-flow"/>
+                    <path d="M50,100 Q250,200 450,100 T750,250 T950,100" stroke="#0c9b2c" stroke-width="2" fill="none" class="opacity-50 animate-dash-flow" style="animation-delay: 0.5s;"/>
                 </svg>
             </div>
 
-            <!-- Headline Text Overlay -->
+            <!-- Headline text for the hero banner -->
             <div class="relative z-10 px-6 md:px-12 text-center animate-fade-in-up pt-24" style="animation-delay: 0.8s;">
                 <h2 class="font-montserrat text-4xl md:text-6xl font-extrabold leading-tight tracking-tight drop-shadow-lg">
                     Towards High Performance Culture <span class="text-[#f7e815]">Insights</span>
@@ -158,11 +175,11 @@
             </div>
         </section>
 
-        <!-- Dashboard Card Grid -->
+        <!-- Dashboard Navigation Card Grid -->
         <section id="home-cards" class="container mx-auto px-6 py-12 md:py-16 page-section active">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
 
-                <!-- New Card 0: Dashboard Overview -->
+                <!-- Card for Dashboard Overview (full width) -->
                 <a href="#" class="block group card-animation card-0 col-span-full" data-target-page="dashboard-overview-page">
                     <div class="bg-white rounded-xl shadow-lg p-4 md:p-6 flex flex-col md:flex-row items-center md:justify-center text-center md:text-left transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl hover:border-2 hover:border-[#0404cc] border-2 border-transparent">
                         <div class="mb-3 md:mb-0 md:mr-4">
@@ -175,7 +192,7 @@
                     </div>
                 </a>
 
-                <!-- Card 1: Strategic Insights -->
+                <!-- Cards for other sections (equal size, 3 per row on large screens) -->
                 <a href="#" class="block group card-animation card-1" data-target-page="strategic-insights-page">
                     <div class="bg-white rounded-xl shadow-lg p-4 md:p-6 flex flex-col items-center text-center transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl hover:border-2 hover:border-[#f7e815] border-2 border-transparent">
                         <div class="mb-3">
@@ -186,7 +203,6 @@
                     </div>
                 </a>
 
-                <!-- Card 2: Divisions -->
                 <a href="#" class="block group card-animation card-2" data-target-page="divisions-page">
                     <div class="bg-white rounded-xl shadow-lg p-4 md:p-6 flex flex-col items-center text-center transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl hover:border-2 hover:border-[#f7e815] border-2 border-transparent">
                         <div class="mb-3">
@@ -197,7 +213,6 @@
                     </div>
                 </a>
 
-                <!-- Card 3: Job Levels -->
                 <a href="#" class="block group card-animation card-3" data-target-page="job-levels-page">
                     <div class="bg-white rounded-xl shadow-lg p-4 md:p-6 flex flex-col items-center text-center transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl hover:border-2 hover:border-[#f7e815] border-2 border-transparent">
                         <div class="mb-3">
@@ -208,7 +223,6 @@
                     </div>
                 </a>
 
-                <!-- Card 4: Career Level and Occupational Track -->
                 <a href="#" class="block group card-animation card-4" data-target-page="career-occupational-page">
                     <div class="bg-white rounded-xl shadow-lg p-4 md:p-6 flex flex-col items-center text-center transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl hover:border-2 hover:border-[#f7e815] border-2 border-transparent">
                         <div class="mb-3">
@@ -219,7 +233,6 @@
                     </div>
                 </a>
 
-                <!-- Card 5: Generational Excellence & Future Readiness -->
                 <a href="#" class="block group card-animation card-5" data-target-page="generational-excellence-page">
                     <div class="bg-white rounded-xl shadow-lg p-4 md:p-6 flex flex-col items-center text-center transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl hover:border-2 hover:border-[#f7e815] border-2 border-transparent">
                         <div class="mb-3">
@@ -230,7 +243,6 @@
                     </div>
                 </a>
 
-                <!-- New Card 6: Comprehensive Performance Analysis: 2022-2024 -->
                 <a href="#" class="block group card-animation card-6" data-target-page="comprehensive-analysis-page">
                     <div class="bg-white rounded-xl shadow-lg p-4 md:p-6 flex flex-col items-center text-center transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl hover:border-2 hover:border-[#f7e815] border-2 border-transparent">
                         <div class="mb-3">
@@ -244,11 +256,8 @@
             </div>
         </section>
 
-        <!-- New Dashboard Overview Page -->
+        <!-- Dashboard Overview Page Content -->
         <section id="dashboard-overview-page" class="page-section hidden container mx-auto px-6 py-12 md:py-16">
-            <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300 mb-8">
-                &larr; Back to Home
-            </button>
             <h2 class="font-montserrat text-3xl md:text-4xl font-bold text-[#0404cc] mb-8 text-center">Dashboard Overview</h2>
             <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
                 <p class="font-inter text-gray-700 mb-4">Our 2024 performance data reveal a highly capable workforce with superior talent density yet also underscores the urgency to calibrate excellence, reimagine rewards, and empower managers. This dashboard provides a high-level overview of key performance metrics, aggregating data from various departments and job levels to give a holistic view of employee performance, trends, and overall organizational health. Use this dashboard to quickly identify areas of strength and opportunities for improvement to transform latent potential into sustained market leadership.</p>
@@ -261,13 +270,16 @@
                     </div>
                 </div>
             </div>
+            <!-- Back button for navigation at the bottom -->
+            <div class="mt-12 flex justify-center">
+                <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300">
+                    &larr; Back to Home
+                </button>
+            </div>
         </section>
 
-        <!-- Strategic Insights Page (Existing) -->
+        <!-- Strategic Insights Page Content -->
         <section id="strategic-insights-page" class="page-section hidden container mx-auto px-6 py-12 md:py-16">
-            <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300 mb-8">
-                &larr; Back to Home
-            </button>
             <h2 class="font-montserrat text-3xl md:text-4xl font-bold text-[#0404cc] mb-8 text-center">Strategic Insights</h2>
             <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
                 <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Annual Performance Report: 2024</h3>
@@ -370,7 +382,7 @@
                                 <td class="py-2 px-4 border-b text-sm text-gray-600">4</td>
                                 <td class="py-2 px-4 border-b text-sm text-gray-600">Medium-term</td>
                                 <td class="py-2 px-4 border-b text-sm text-gray-600">Underperformance festering; missed development opportunities</td>
-                            </tr>
+                                </tr>
                             <tr>
                                 <td class="py-2 px-4 text-sm text-gray-600">Growth Stagnation</td>
                                 <td class="py-2 px-4 text-sm text-gray-600">3</td>
@@ -460,13 +472,16 @@
                     </li>
                 </ol>
             </div>
+            <!-- Back button for navigation at the bottom -->
+            <div class="mt-12 flex justify-center">
+                <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300">
+                    &larr; Back to Home
+                </button>
+            </div>
         </section>
 
-        <!-- Divisions Page -->
+        <!-- Divisions Page Content -->
         <section id="divisions-page" class="page-section hidden container mx-auto px-6 py-12 md:py-16">
-            <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300 mb-8">
-                &larr; Back to Home
-            </button>
             <h2 class="font-montserrat text-3xl md:text-4xl font-bold text-[#0404cc] mb-8 text-center">Divisions Performance Overview</h2>
             <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
                 <p class="font-inter text-gray-700 mb-4">Divisions: Celebrating Resilience, Catalyzing Growth. Let’s build on our strengths, own our opportunities, and pioneer the future—together. While divisions like IT (3.8 avg) and Supply Chain (3.6 avg) set new performance benchmarks, we identified critical opportunities to align talent strategies with market leadership ambitions. This section details the performance distribution across different organizational divisions. Understanding divisional performance helps in identifying top-performing units, areas needing support, and potential best practices that can be shared across the company. It highlights how each division contributes to the overall organizational excellence and strategic growth.</p>
@@ -492,7 +507,7 @@
                                 <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Avg Score</th>
                                 <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Benchmark Avg</th>
                                 <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">High Performers</th>
-                                <th class="py-2 px-4 border-b text-sm font-semibold text-gray-700">Benchmark High Performers</th>
+                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Benchmark High Performers</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -654,13 +669,16 @@
                 <p class="font-inter text-gray-700 mb-4">By urgently addressing calibration in HR, Legal, and Marketing, strategically amplifying Sales and IT, and future-proofing our workforce through targeted initiatives, we will transform latent potential into measurable market advantage.</p>
                 <p class="font-inter text-gray-700 mb-4">Benchmark Sources: PwC Middle East Telecom Talent Report 2024, STC Sustainability Study, Etisalat Performance Benchmarking.</p>
             </div>
+            <!-- Back button for navigation at the bottom -->
+            <div class="mt-12 flex justify-center">
+                <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300">
+                    &larr; Back to Home
+                </button>
+            </div>
         </section>
 
-        <!-- Job Levels Page -->
+        <!-- Job Levels Page Content -->
         <section id="job-levels-page" class="page-section hidden container mx-auto px-6 py-12 md:py-16">
-            <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300 mb-8">
-                &larr; Back to Home
-            </button>
             <h2 class="font-montserrat text-3xl md:text-4xl font-bold text-[#0404cc] mb-8 text-center">Job Levels Performance Overview</h2>
             <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
                 <p class="font-inter text-gray-700 mb-4">Forward, together building on strength, grounded in excellence. Our technical talent demonstrated exceptional strength, while leadership levels showed opportunities for calibration refinement. This section provides insights into performance trends across various job levels within the organization. Analyzing performance by job level helps in understanding the effectiveness of talent development programs, identifying leadership potential at different tiers, and ensuring that expectations are calibrated appropriately for each level. It supports elevating excellence through calibrated growth initiatives.</p>
@@ -898,13 +916,16 @@
                 <p class="font-inter text-gray-700 mb-4">Our 2024 performance confirms our technical prowess while revealing opportunities to strengthen leadership calibration and specialist development. By implementing these targeted initiatives, we will transform our solid foundation into sustainable competitive advantage, positioning us as the Middle East's telecom innovator of choice.</p>
                 <p class="font-inter text-gray-700 mb-4">Benchmark Sources: PwC Middle East Talent Trends 2024, STC Performance Report, Etisalat Leadership Study.</p>
             </div>
+            <!-- Back button for navigation at the bottom -->
+            <div class="mt-12 flex justify-center">
+                <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300">
+                    &larr; Back to Home
+                </button>
+            </div>
         </section>
 
-        <!-- Career Level and Occupational Track Page -->
+        <!-- Career Level and Occupational Track Page Content -->
         <section id="career-occupational-page" class="page-section hidden container mx-auto px-6 py-12 md:py-16">
-            <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300 mb-8">
-                &larr; Back to Home
-            </button>
             <h2 class="font-montserrat text-3xl md:text-4xl font-bold text-[#0404cc] mb-8 text-center">Career Level and Occupational Track Performance</h2>
             <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
                 <p class="font-inter text-gray-700 mb-4">Elevating Talent Excellence. 2024 demonstrated remarkable resilience across our workforce, with 97% of employees meeting or exceeding expectations. However, critical calibration gaps in leadership ratings and occupational track alignment present opportunities to strengthen our performance ecosystem. Key highlights:</p>
@@ -926,7 +947,7 @@
                                 <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Telecom Benchmark</th>
                                 <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">High Performers</th>
                                 <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Telecom Benchmark</th>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-700">Variance</th>
+                                <th class="py-2 px-4 border-b text-sm text-gray-600">Variance</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1137,63 +1158,65 @@
                 </div>
                 <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">Feasibility Assessment:</h4>
                 <ul class="list-disc list-inside ml-4 mb-4 text-gray-700">
-                    <li><strong>High-Impact/Quick-Win:</strong> Managerial KPI redesign (uses existing HR systems).</li>
-                    <li><strong>High-Impact/Strategic:</strong> Dual-career path development (requires 18-month rollout).</li>
+                    <li><strong>Quick Win:</strong> Technical spot awards (utilizes existing reward infrastructure).</li>
+                    <li><strong>High Impact:</strong> Executive KPI redesign (requires board approval but high ROI).</li>
                 </ul>
-
                 <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">HR Lens – Strategic Projects:</h3>
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">Remedial Projects (Address Systemic Gaps):</h4>
+                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">Remedial Projects (Address Gaps):</h4>
                 <ol class="list-decimal list-inside ml-4 mb-4 text-gray-700">
                     <li><strong>Project Anchor:</strong>
                         <ul class="list-disc list-inside ml-4">
-                            <li>Focus: Leadership calibration overhaul</li>
-                            <li>Actions: Blind-rating workshops, business-impact linked criteria</li>
-                            <li>Outcome: Achieve benchmark-aligned distribution by Q2 2026</li>
+                            <li>Focus: Executive calibration overhaul</li>
+                            <li>Actions: Strategy-linked KPIs, 360° input for leadership ratings</li>
+                            <li>Outcome: Achieve benchmark-aligned distribution by Q4 2025</li>
                         </ul>
                     </li>
-                    <li><strong>Project Equilibrium:</strong>
+                    <li><strong>Project Uplift:</strong>
                         <ul class="list-disc list-inside ml-4">
-                            <li>Focus: Managerial track realignment</li>
-                            <li>Actions: Transition operational managers to IC track, team-development KPIs</li>
-                            <li>Outcome: 90% of managerial ratings reflect true leadership impact</li>
+                            <li>Focus: Specialist capability building</li>
+                            <li>Actions: Competency diagnostics + personalized learning paths</li>
+                            <li>Outcome: Reduce underperformance from 4% to ≤2% by 2026</li>
                         </ul>
                     </li>
                 </ol>
-                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">Proactive Projects (Future-Proof Talent):</h4>
+                <h4 class="font-montserrat text-xl font-bold text-[#0404cc] mb-2">Proactive Projects (Future-Proofing):</h4>
                 <ol class="list-decimal list-inside ml-4 mb-4 text-gray-700" start="3">
                     <li><strong>Project Apex:</strong>
                         <ul class="list-disc list-inside ml-4">
-                            <li>Focus: IC leadership pipeline</li>
-                            <li>Actions: Technical mastery pathways, IC-to-manager transition labs</li>
-                            <li>Outcome: 40% of leadership roles filled internally from IC track by 2027</li>
+                            <li>Focus: Technical leadership pipeline</li>
+                            <li>Actions: Engineer-to-Expert accelerator program</li>
+                            <li>Outcome: 50% of Expert roles filled internally by 2027</li>
                         </ul>
                     </li>
-                    <li><strong>Project Foundation:</strong>
+                    <li><strong>Project Horizon:</strong>
                         <ul class="list-disc list-inside ml-4">
-                            <li>Focus: Early-career digital capability</li>
-                            <li>Actions: AI fluency micro-credentials, automation apprenticeships</li>
-                            <li>Outcome: 100% of entry-level tech-ready by 2026</li>
+                            <li>Focus: Digital fluency enterprise-wide</li>
+                            <li>Actions: AI literacy certifications + automation labs</li>
+                            <li>Outcome: 100% of engineers future-ready by 2026</li>
                         </ul>
                     </li>
                     <li><strong>Project Synergy:</strong>
                         <ul class="list-disc list-inside ml-4">
-                            <li>Focus: Cross-track mobility</li>
-                            <li>Actions: Skills marketplaces, rotational programs</li>
-                            <li>Outcome: 30% reduction in occupational track silos</li>
+                            <li>Focus: Cross-level mentorship</li>
+                            <li>Actions: Senior Manager-Engineer innovation pods</li>
+                            <li>Outcome: 30% increase in cross-functional solutions</li>
                         </ul>
                     </li>
                 </ol>
-                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Conclusion: Building a Calibrated, Future-Ready Workforce</h3>
-                <p class="font-inter text-gray-700 mb-4">Our 2024 performance data reveals both the depth of our talent foundation and critical opportunities to strengthen calibration, rebalance rewards, and future-proof careers. By addressing leadership rating credibility, unlocking IC potential, and redefining managerial excellence, we will transform insights into sustainable competitive advantage.</p>
-                <p class="font-inter text-gray-700 mb-4">Benchmark Sources: S&P Global Telecom HR Survey 2024, Etisalat Leadership Framework, STC Performance Benchmarking.</p>
+                <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Conclusion: Calibrating Excellence, Accelerating Growth</h3>
+                <p class="font-inter text-gray-700 mb-4">Our 2024 performance confirms our technical prowess while revealing opportunities to strengthen leadership calibration and specialist development. By implementing these targeted initiatives, we will transform our solid foundation into sustainable competitive advantage, positioning us as the Middle East's telecom innovator of choice.</p>
+                <p class="font-inter text-gray-700 mb-4">Benchmark Sources: PwC Middle East Talent Trends 2024, STC Performance Report, Etisalat Leadership Study.</p>
+            </div>
+            <!-- Back button for navigation at the bottom -->
+            <div class="mt-12 flex justify-center">
+                <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300">
+                    &larr; Back to Home
+                </button>
             </div>
         </section>
 
-        <!-- Generational Excellence & Future Readiness Page -->
+        <!-- Generational Excellence & Future Readiness Page Content -->
         <section id="generational-excellence-page" class="page-section hidden container mx-auto px-6 py-12 md:py-16">
-            <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300 mb-8">
-                &larr; Back to Home
-            </button>
             <h2 class="font-montserrat text-3xl md:text-4xl font-bold text-[#0404cc] mb-8 text-center">Generational Excellence & Future Readiness</h2>
             <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
                 <p class="font-inter text-gray-700 mb-4">Critical opportunities emerged to optimize generational strengths, recalibrate leadership ratings, and align talent strategies with digital transformation. This section provides insights into employee performance and future readiness across different generations within the workforce. Understanding generational dynamics helps in developing targeted engagement strategies, fostering cross-generational collaboration, and preparing the organization for future talent needs. It ensures that the company leverages the unique strengths of each generation while addressing potential challenges.</p>
@@ -1447,13 +1470,16 @@
                 <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Conclusion: Harnessing Generational Synergy</h3>
                 <p class="font-inter text-gray-700 mb-4">Our 2024 performance confirms that generational diversity is our competitive advantage – from Gen X’s operational mastery to Gen Z’s digital prowess. By recalibrating leadership recognition, realigning managerial expectations, and strategically transferring knowledge, we will transform today’s strengths into sustainable market leadership.</p>
             </div>
+            <!-- Back button for navigation at the bottom -->
+            <div class="mt-12 flex justify-center">
+                <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300">
+                    &larr; Back to Home
+                </button>
+            </div>
         </section>
 
-        <!-- New Comprehensive Performance Analysis Page -->
+        <!-- Comprehensive Performance Analysis: 2022-2024 Page Content -->
         <section id="comprehensive-analysis-page" class="page-section hidden container mx-auto px-6 py-12 md:py-16">
-            <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300 mb-8">
-                &larr; Back to Home
-            </button>
             <h2 class="font-montserrat text-3xl md:text-4xl font-bold text-[#0404cc] mb-8 text-center">Comprehensive Performance Analysis: 2022-2024</h2>
             <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
                 <p class="font-inter text-gray-700 mb-4">This section provides a comprehensive analysis of performance trends over the past three years (2022-2024). By examining historical data, we can identify long-term patterns, assess the impact of past initiatives, and forecast future performance trajectories. This holistic view is crucial for strategic planning and ensuring sustained organizational growth and excellence.</p>
@@ -1521,54 +1547,78 @@
                 <h3 class="font-montserrat text-2xl font-bold text-[#0404cc] mb-4">Future Outlook:</h3>
                 <p class="font-inter text-gray-700 mb-4">Based on these trends, the organization is well-positioned for continued growth and innovation. Future initiatives should focus on reinforcing strengths, addressing minor gaps, and adapting performance metrics to evolving business needs and market dynamics. This long-term perspective ensures that our talent strategy remains aligned with our strategic objectives.</p>
             </div>
+            <!-- Back button for navigation at the bottom -->
+            <div class="mt-12 flex justify-center">
+                <button class="back-button bg-[#0404cc] hover:bg-[#f7e815] text-white hover:text-[#0404cc] font-bold py-2 px-4 rounded-full transition-colors duration-300">
+                    &larr; Back to Home
+                </button>
+            </div>
         </section>
 
     </main>
 
-    <!-- Footer -->
+    <!-- Footer section -->
     <footer class="bg-gray-800 text-white py-6 px-6 md:px-12 text-center">
         <p class="font-inter text-sm">&copy; 2024 Sudani. All rights reserved. Designed for Executive Performance Analytics.</p>
     </footer>
 
     <script>
-        // Initialize Lucide icons
+        // Initialize Lucide icons on page load
         lucide.createIcons();
 
-        // Function to show a specific page and hide others
+        /**
+         * Controls page visibility by adding/removing 'active' and 'hidden' classes.
+         * Scrolls to the top of the newly activated page.
+         * @param {string} pageId - The ID of the page section to display.
+         */
         function showPage(pageId) {
+            // Hide all page sections
             document.querySelectorAll('.page-section').forEach(section => {
                 section.classList.remove('active');
                 section.classList.add('hidden');
             });
+            // Show the target page section
             document.getElementById(pageId).classList.remove('hidden');
             document.getElementById(pageId).classList.add('active');
-            window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top of the page
+            // Smooth scroll to the top of the page
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Event listeners for navigation cards
+        // Event listeners for navigation cards on the home page
         document.querySelectorAll('[data-target-page]').forEach(card => {
             card.addEventListener('click', function(event) {
-                event.preventDefault(); // Prevent default link behavior
-                const targetPageId = this.dataset.targetPage;
-                showPage(targetPageId);
+                event.preventDefault(); // Prevent default link behavior (e.g., hash navigation)
+                const targetPageId = this.dataset.targetPage; // Get the target page ID from data attribute
+                showPage(targetPageId); // Show the selected page
             });
         });
 
-        // Event listeners for "Back to Home" buttons
+        // Event listeners for "Back to Home" buttons on sub-pages
         document.querySelectorAll('.back-button').forEach(button => {
             button.addEventListener('click', function() {
-                showPage('home-hero'); // Show the home hero section
-                document.getElementById('home-cards').classList.remove('hidden'); // Also show the home cards
+                showPage('home-hero'); // Show the hero section of the home page
+                // Also ensure the home cards section is visible when returning home
+                document.getElementById('home-cards').classList.remove('hidden');
                 document.getElementById('home-cards').classList.add('active');
             });
         });
 
-        // Chart.js Global Defaults
+        // Global Chart.js defaults for consistent chart styling
         Chart.defaults.font.family = 'Inter';
         Chart.defaults.font.size = 14;
-        Chart.defaults.color = '#4a5568'; // gray-700
+        Chart.defaults.color = '#4a5568'; // Tailwind's gray-700
 
-        // Function to create a bar chart
+        /**
+         * Creates a bar chart using Chart.js.
+         * @param {CanvasRenderingContext2D} ctx - The 2D rendering context of the canvas.
+         * @param {string[]} labels - Labels for the X-axis.
+         * @param {number[]} data - Data values for the bars.
+         * @param {string} label - Label for the dataset.
+         * @param {string} backgroundColor - Background color of the bars.
+         * @param {string} borderColor - Border color of the bars.
+         * @param {string} [yAxisText='Percentage (%)'] - Text for the Y-axis title.
+         * @param {function} [yAxisTicksCallback] - Callback function for Y-axis tick formatting.
+         */
         function createBarChart(ctx, labels, data, label, backgroundColor, borderColor, yAxisText = 'Percentage (%)', yAxisTicksCallback = function(value) { return value + '%'; }) {
             new Chart(ctx, {
                 type: 'bar',
@@ -1580,12 +1630,12 @@
                         backgroundColor: backgroundColor,
                         borderColor: borderColor,
                         borderWidth: 1,
-                        borderRadius: 8, // Rounded bars
+                        borderRadius: 8, /* Rounded bars for modern look */
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false, // Allow charts to resize freely
+                    responsive: true, /* Chart resizes with canvas container */
+                    maintainAspectRatio: false, /* Allows flexible height */
                     plugins: {
                         legend: {
                             display: true,
@@ -1604,7 +1654,8 @@
                                         label += ': ';
                                     }
                                     if (context.parsed.y !== null) {
-                                        label += context.parsed.y + (yAxisText === 'Percentage (%)' ? '%' : '');
+                                        // Append '%' only if yAxisText indicates percentage
+                                        label += context.parsed.y + (yAxisText.includes('Percentage') ? '%' : '');
                                     }
                                     return label;
                                 }
@@ -1639,7 +1690,14 @@
             });
         }
 
-        // Function to create a stacked bar chart
+        /**
+         * Creates a stacked bar chart using Chart.js.
+         * @param {CanvasRenderingContext2D} ctx - The 2D rendering context of the canvas.
+         * @param {string[]} labels - Labels for the X-axis.
+         * @param {object[]} datasets - Array of dataset objects for the stacked bars.
+         * @param {string} [yAxisText='Percentage of Employees (%)'] - Text for the Y-axis title.
+         * @param {function} [yAxisTicksCallback] - Callback function for Y-axis tick formatting.
+         */
         function createStackedBarChart(ctx, labels, datasets, yAxisText = 'Percentage of Employees (%)', yAxisTicksCallback = function(value) { return value + '%'; }) {
             new Chart(ctx, {
                 type: 'bar',
@@ -1668,7 +1726,8 @@
                                         label += ': ';
                                     }
                                     if (context.parsed.y !== null) {
-                                        label += context.parsed.y + (yAxisText === 'Percentage of Employees (%)' ? '%' : '');
+                                        // Append '%' only if yAxisText indicates percentage
+                                        label += context.parsed.y + (yAxisText.includes('Percentage') ? '%' : '');
                                     }
                                     return label;
                                 }
@@ -1677,7 +1736,7 @@
                     },
                     scales: {
                         x: {
-                            stacked: true,
+                            stacked: true, /* Enable stacking on X-axis */
                             title: {
                                 display: true,
                                 text: 'Performance Rating',
@@ -1687,7 +1746,7 @@
                             }
                         },
                         y: {
-                            stacked: true,
+                            stacked: true, /* Enable stacking on Y-axis */
                             beginAtZero: true,
                             title: {
                                 display: true,
@@ -1705,19 +1764,18 @@
             });
         }
 
-
-        // Initialize Charts when the DOM is loaded
+        // Initialize Charts when the DOM is fully loaded to ensure canvas elements exist
         document.addEventListener('DOMContentLoaded', function() {
-            // Dashboard Overview Charts
+            // Dashboard Overview Charts initialization
             const averageScoreCtx = document.getElementById('averageScoreChart').getContext('2d');
             createBarChart(averageScoreCtx,
                 ['Q1 2024', 'Q2 2024', 'Q3 2024', 'Q4 2024'],
                 [3.4, 3.5, 3.6, 3.5],
                 'Average Performance Score',
-                'rgba(4, 4, 204, 0.7)', // #0404cc with opacity
-                'rgba(4, 4, 204, 1)',
-                'Average Score', // Custom Y-axis text
-                function(value) { return value; } // No '%' for average score
+                'rgba(4, 4, 204, 0.7)', /* Primary color with transparency */
+                'rgba(4, 4, 204, 1)', /* Primary color */
+                'Average Score', /* Custom Y-axis text */
+                function(value) { return value; } /* No '%' for average score */
             );
 
             const stackedBarCtx = document.getElementById('stackedBarChart').getContext('2d');
@@ -1727,32 +1785,32 @@
                     {
                         label: 'Outstanding',
                         data: [7],
-                        backgroundColor: 'rgba(12, 155, 44, 0.7)', // #0c9b2c
-                        borderColor: 'rgba(12, 155, 44, 1)',
+                        backgroundColor: 'rgba(12, 155, 44, 0.7)', /* Green with transparency */
+                        borderColor: 'rgba(12, 155, 44, 1)', /* Green */
                         borderWidth: 1,
                         borderRadius: 8,
                     },
                     {
                         label: 'Exceeds',
                         data: [22],
-                        backgroundColor: 'rgba(247, 232, 21, 0.7)', // #f7e815
-                        borderColor: 'rgba(247, 232, 21, 1)',
+                        backgroundColor: 'rgba(247, 232, 21, 0.7)', /* Yellow with transparency */
+                        borderColor: 'rgba(247, 232, 21, 1)', /* Yellow */
                         borderWidth: 1,
                         borderRadius: 8,
                     },
                     {
                         label: 'Meets',
                         data: [68],
-                        backgroundColor: 'rgba(4, 4, 204, 0.7)', // #0404cc
-                        borderColor: 'rgba(4, 4, 204, 1)',
+                        backgroundColor: 'rgba(4, 4, 204, 0.7)', /* Primary color with transparency */
+                        borderColor: 'rgba(4, 4, 204, 1)', /* Primary color */
                         borderWidth: 1,
                         borderRadius: 8,
                     },
                     {
                         label: 'Below Expectations',
                         data: [2],
-                        backgroundColor: 'rgba(255, 99, 132, 0.7)', // Red for underperformance
-                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.7)', /* Red with transparency for underperformance */
+                        borderColor: 'rgba(255, 99, 132, 1)', /* Red */
                         borderWidth: 1,
                         borderRadius: 8,
                     }
